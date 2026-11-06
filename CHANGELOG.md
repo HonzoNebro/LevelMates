@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.1
 
 - **The classic dungeons from 30 to 60** in the group finder, the cards and the chat ads: Razorfen Downs, the Monastery's Armory and Cathedral, Uldaman, Zul'Farrak, Maraudon, the Temple of Atal'Hakkar, Blackrock Depths, Lower Blackrock Spire, Dire Maul, Stratholme and Scholomance. Their level ranges are provisional (the Forever client's minimum, the classic maximum) until checked in the game's journal.
 - **Dungeon cards in pages** of 15 (arrows at the top right), opening on the page your level fits: the book keeps its size.
