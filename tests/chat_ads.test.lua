@@ -17,6 +17,13 @@ assert(CA.Parse("the deadmines are fun") == nil, "a dungeon without a group word
 assert(CA.Parse("admin need help with dmg") == nil, "whole words only")
 assert(CA.Parse("busco grupo para mazmorras") == nil, "the word for dungeons is not the Stockade")
 assert(CA.Parse("LFM SM lib") == 14 and CA.Parse("lfg cementerio") == 13, "Monastery wings")
+-- Forever's later dungeons, in both languages
+assert(CA.Parse("LFM Drowned City need heal") == 15 and CA.Parse("busco grupo Ciudad Sumergida") == 15, "the Drowned City")
+assert(CA.Parse("LF2M Krol'dok tank") == 16 and CA.Parse("lfg kroldok") == 16, "Krol'dok, with or without the apostrophe")
+assert(CA.Parse("LFM Alcaz Prison") == 17 and CA.Parse("faltan dps para Prisión de Alcaz") == 17, "Alcaz")
+assert(CA.Parse("LFG Blackmaw") == 18 and CA.Parse("busco Faucenegra") == 18, "Blackmaw")
+assert(CA.Parse("LFM Shaper's Terrace") == 19 and CA.Parse("grupo Bancal del Creador") == 19, "Shaper's Terrace")
+assert(CA.Parse("LFG alcaz island quests") == nil and CA.Parse("busco grupo para el bancal") == nil, "the island and the plain word are not the dungeons")
 
 -- hearing the chat
 local function say(text, who, chan) STUB.Fire("CHAT_MSG_CHANNEL", text, who, "", "2. Trade", who, "", 0, 2, chan or "Trade") end

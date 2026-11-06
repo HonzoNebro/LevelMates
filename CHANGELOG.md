@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Forever's later dungeons** in the group finder, the cards and the chat ads: The Drowned City (35-40), Krol'dok Stronghold (40-45), Alcaz Prison (48-53), Blackmaw Hold (55-60) and Shaper's Terrace (58-60), with Blizzard's level ranges. Their cards show Forever's Eastern Kingdoms or Kalimdor loading screen until each has its own.
+- **Forever's raids**: The Barrow Deeps (10 players) and Hyjal Summit (20), opening 9 December.
+
 ## 0.6.4
 
 - Fixed: every Home redraw raised the game's "blocked action" dialog (the MOTD was asked through a restricted call; it now comes from the game's own event).

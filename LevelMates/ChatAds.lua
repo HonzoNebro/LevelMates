@@ -22,6 +22,11 @@ local ALIASES = {
 	[12] = { "razorfen kraul", "rfk", "kraul", "horado rajacieno", "rajacieno", "horado" },
 	[13] = { "sm graveyard", "sm gy", "graveyard", "gy", "sm cementerio", "cementerio" },
 	[14] = { "sm library", "sm lib", "library", "lib", "sm biblioteca", "biblioteca", "biblio" },
+	[15] = { "drowned city", "ciudad sumergida", "sumergida" },   -- plain "drowned" is too common a word
+	[16] = { "krol dok stronghold", "krol dok", "kroldok", "bastion krol dok" },   -- the apostrophe is a space by now
+	[17] = { "alcaz prison", "prision de alcaz", "prision alcaz" },   -- plain "alcaz" is also the island and its quests
+	[18] = { "blackmaw hold", "blackmaw", "bastion faucenegra", "faucenegra" },
+	[19] = { "shaper s terrace", "shapers terrace", "shapers", "bancal del creador" },   -- plain "bancal" is an ordinary word
 }
 local GROUP = {}
 for w in ("lfm lfg lf lf1m lf2m lf3m lf4m need needs busco buscamos buscando falta faltan tank tanque heal heals healer healers sanador dps grupo group run runs inv"):gmatch("%S+") do GROUP[w] = true end

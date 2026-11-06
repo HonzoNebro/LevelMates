@@ -1,4 +1,5 @@
--- Dungeons.lua: the dungeons the group finder knows, with their card art: the fourteen of the Forever dungeon journal.
+-- Dungeons.lua: the dungeons the group finder knows, with their card art: the fourteen of the Forever dungeon journal,
+-- then Forever's five later new ones (15-19, Blizzard's ranges: news.blizzard.com article 24301455).
 -- To add one, append a row here and add its DUNGEON_* name to both locale files (tests/policy.test.mjs checks that).
 -- Ids 1-6 travel in messages (lfg, dun goals): never renumber them.
 local _, ns = ...
@@ -8,10 +9,13 @@ ns.Dungeons = D
 -- Card art: only the game's own loading screens (classic ones by path, Forever's new ones by file id), cropped to
 -- the card. Nothing is copied from anyone; the textures already ship with the game.
 -- Forever's ids (community listfile, camelot160/main): 7963775 loadscreen_camelot_dalaran, 7963777 _excavation,
--- 7963781 _oldironforge (Hall of Thanes), 7963782 _ruinsoflordaeron.
+-- 7963781 _oldironforge (Hall of Thanes), 7963782 _ruinsoflordaeron. The five later ones have no screen of their own in
+-- the listfile (wowdev/wow-listfile, 2026-11-05): they use Forever's continent screens, 7963776 _easternkingdom and
+-- 7963779 _kalimdor, until theirs is known.
 local LS = "Interface\\Glues\\LoadingScreens\\"
 local WIDE, TALL = { 0.02, 0.98, 0.25, 0.82 }, { 0.02, 0.98, 0.24, 0.82 }
 local NEW = { 0, 1, 0.12, 0.88 }
+local EK, KALIMDOR = 7963776, 7963779
 -- Both Monastery wings are one instance in game, named without the wing (as ForeverDungeonJournal notes too).
 local SM = { "Scarlet Monastery", "Monasterio Escarlata" }
 
@@ -30,6 +34,11 @@ D.list = {
 	{ id = 12, key = "DUNGEON_RAZORFEN_KRAUL",      min = 29, max = 38, art = 131865, coords = { 0.02, 0.98, 0.20, 0.62 } },   -- its scene sits high; lower down it washes out
 	{ id = 13, key = "DUNGEON_SM_GRAVEYARD",        min = 30, max = 38, art = LS .. "LoadScreenScarletMonastery2", coords = TALL, instance = SM },
 	{ id = 14, key = "DUNGEON_SM_LIBRARY",          min = 33, max = 41, art = LS .. "LoadScreenScarletHalls", coords = TALL, instance = SM },
+	{ id = 15, key = "DUNGEON_DROWNED_CITY",        min = 35, max = 40, art = EK, coords = NEW },
+	{ id = 16, key = "DUNGEON_KROLDOK_STRONGHOLD",  min = 40, max = 45, art = EK, coords = NEW },
+	{ id = 17, key = "DUNGEON_ALCAZ_PRISON",        min = 48, max = 53, art = KALIMDOR, coords = NEW },
+	{ id = 18, key = "DUNGEON_BLACKMAW_HOLD",       min = 55, max = 60, art = KALIMDOR, coords = NEW },
+	{ id = 19, key = "DUNGEON_SHAPERS_TERRACE",     min = 58, max = 60, art = KALIMDOR, coords = NEW },
 }
 
 local byId = {}

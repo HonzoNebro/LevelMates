@@ -22,7 +22,7 @@ The tag is `[LM1` followed by `key=value` pairs separated by spaces, and closes 
 |---|---|
 | `id` | The group's id, 8 characters. It is the same in every line about that group. |
 | `ev` | The event (see the table below). |
-| `act` | The activity: 1–14 dungeons, 101–107 raids, 190 a raid with a name, 201–203 battlegrounds, 290 world PvP, 300 anything else. |
+| `act` | The activity: 1–19 dungeons, 101–109 raids, 190 a raid with a name, 201–203 battlegrounds, 290 world PvP, 300 anything else. |
 | `src` | `now` for a group looking for people right away; `run` for one with a day and hour. |
 | `at` | When a `run` starts, in **minutes since 1970 (UTC)**: multiply by 60 for a Unix timestamp. Missing for `now`. |
 | `n` | The name the leader gave, for activities 190, 290 and 300. Turn `_` back into spaces. |
