@@ -38,6 +38,7 @@ LevelBar.lua
 Ding.lua
 GuildMap.lua
 Recruit.lua
+GuildNotice.lua
 Inactive.lua
 MinimapButton.lua
 Questie.lua

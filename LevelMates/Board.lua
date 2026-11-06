@@ -774,6 +774,23 @@ local function Build()
 		W.PickMenu(self, L.RECRUIT_EVERY_TITLE, options, ns.Recruit.Every(), function(n) ns.char.recruitEvery = n; B.Refresh() end)
 	end)
 	B.recruitEvery = every
+	-- the guild notice (GuildNotice.lua): the guild info said in guild chat by itself, every so often; one officer sends it
+	local notice = CreateFrame("CheckButton", nil, rp, "UICheckButtonTemplate")
+	notice:SetSize(22, 22); notice:SetPoint("TOPLEFT", 0, -262)
+	notice:SetScript("OnClick", function(self) ns.GuildNotice.SetOn(self:GetChecked()); B.Refresh() end)
+	local noticeLabel = rp:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	table.insert(B.recruitLabels, noticeLabel)
+	noticeLabel:SetPoint("LEFT", notice, "RIGHT", 2, 0); noticeLabel:SetText(L.NOTICE_SWITCH)
+	local noticeEvery = ns.Skin.Button(rp)
+	noticeEvery:SetSize(120, 20); noticeEvery:SetPoint("LEFT", noticeLabel, "RIGHT", 8, 0)
+	noticeEvery:SetScript("OnClick", function(self)
+		local options = {}
+		for _, n in ipairs(ns.GuildNotice.EVERY_CHOICES) do options[#options + 1] = { value = n, label = string.format(L.RECRUIT_EVERY, n) } end
+		W.PickMenu(self, L.NOTICE_EVERY_TITLE, options, ns.GuildNotice.Every(), function(n) ns.char.guildNoticeEvery = n; B.Refresh() end)
+	end)
+	local noticeStatus = rp:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	noticeStatus:SetPoint("TOPLEFT", 4, -288); noticeStatus:SetJustifyH("LEFT"); noticeStatus:SetTextColor(0.7, 0.7, 0.7)
+	B.noticeCheck, B.noticeEvery, B.noticeStatus = notice, noticeEvery, noticeStatus
 	-- Recruit tab: "Inactive" (bottom left) swaps the templates for members who have not logged in; 14 or 30 days.
 	local view = ns.Skin.Button(f)
 	view:SetSize(120, 20); view:SetPoint("BOTTOMLEFT", 12, 3); view:SetText(L.BTN_INACTIVE)
@@ -2440,6 +2457,11 @@ local function RefreshRecruit()
 	local status = l and string.format(L.RECRUIT_LAST, ns.Journal.Duration(math.max(0, time() - l.at)), l.by) or L.RECRUIT_NONE
 	status = status .. "  ·  " .. (wait > 0 and string.format(L.RECRUIT_WAIT, math.ceil(wait / 60)) or L.RECRUIT_READY)
 	B.recruitStatus:SetText(status)
+	local GN, nl = ns.GuildNotice, ns.GuildNotice.Last()
+	B.noticeCheck:SetChecked(GN.On())
+	B.noticeEvery:SetText(string.format(L.RECRUIT_EVERY, GN.Every()))
+	local said = nl and string.format(L.NOTICE_LAST, ns.Journal.Duration(math.max(0, ((GetServerTime and GetServerTime()) or time()) - nl.at)), nl.by) or L.NOTICE_NONE   -- the server's clock, as it was stored
+	B.noticeStatus:SetText(#GN.Lines() == 0 and L.NOTICE_EMPTY or said)
 end
 
 local function RefreshTabs()

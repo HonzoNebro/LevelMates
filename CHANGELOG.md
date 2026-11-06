@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Guild info in guild chat, by itself** (Guild > Recruit, officers and guild master): turn it on and the guild's Information text is said in guild chat every 30, 60, 120 or 240 minutes, so whoever is online reads it. Off by default; one officer sends it (the last time is shared), never in combat or in an instance. The only thing LevelMates writes in chat without a click; public channels still need one.
 - **Forever's later dungeons** in the group finder, the cards and the chat ads: The Drowned City (35-40), Krol'dok Stronghold (40-45), Alcaz Prison (48-53), Blackmaw Hold (55-60) and Shaper's Terrace (58-60), with Blizzard's level ranges. Their cards show Forever's Eastern Kingdoms or Kalimdor loading screen until each has its own.
 - **Forever's raids**: The Barrow Deeps (10 players) and Hyjal Summit (20), opening 9 December.
 

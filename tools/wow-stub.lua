@@ -337,6 +337,7 @@ OKAY = "Okay"; CANCEL = "Cancel"
 STUB.sounds = {}
 function PlaySound(id) STUB.sounds[#STUB.sounds + 1] = id end
 SOUNDKIT = { IG_SPELLBOOK_OPEN = 829, IG_SPELLBOOK_CLOSE = 830, IG_CHARACTER_INFO_TAB = 841, IG_QUEST_LOG_OPEN = 844, IG_MAINMENU_OPTION_CHECKBOX_ON = 856, RAID_WARNING = 8959 }
+function GetGuildInfoText() return STUB.guildInfo end
 function SendChatMessage(msg, chatType, lang, target) STUB.lastChat = { msg = msg, chatType = chatType or "SAY", lang = lang, target = target } end
 
 -- Minimap button support
