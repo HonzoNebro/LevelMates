@@ -107,16 +107,52 @@ ns.char.guildNoticeEvery = 7
 assert(GN.Every() == 60, "only the offered choices")
 ns.char.guildNoticeEvery = nil
 
+-- what to say: the guild info (by default), the game's message of the day, or both (the message of the day first)
+assert(GN.What() == "info", "the info by default")
+ns.char.guildNoticeWhat = "nonsense"
+assert(GN.What() == "info", "only the offered choices")
+STUB.Fire("GUILD_MOTD", "Hoy banda a las 21:00")
+ns.char.guildNoticeWhat = "motd"
+assert(table.concat(GN.Lines(), "/") == "Hoy banda a las 21:00", "the message of the day: " .. table.concat(GN.Lines(), "/"))
+ns.char.guildNoticeWhat = "both"
+assert(table.concat(GN.Lines(), "/") == "Hoy banda a las 21:00/Hola.", "both, the message of the day first")
+-- the game hands it only at login or when it changes (asking for it is a blocked action on Forever): kept per guild
+assert(ns.db.guildNotice[ns.GuildKey()].motd == "Hoy banda a las 21:00", "kept in the saved data, for after a /reload")
+STUB.player.guild = "Otra Hermandad"
+ns.char.guildNoticeWhat = "motd"
+assert(#GN.Lines() == 0, "another guild's message is not this one's")
+STUB.player.guild = "Test Guild"
+-- it may come before the game says which guild this is: kept until it does
+STUB.player.guild = nil
+STUB.Fire("GUILD_MOTD", "Llegó pronto")
+STUB.player.guild = "Test Guild"
+assert(table.concat(GN.Lines(), "/") == "Llegó pronto", "the early message of the day: " .. table.concat(GN.Lines(), "/"))
+STUB.Fire("GUILD_MOTD", "Hoy banda a las 21:00")
+-- it goes out like the info did
+pause(61)
+STUB.Advance(ROUND)
+assert(#guild == 8 and guild[8] == "Hoy banda a las 21:00", "the message of the day said: " .. tostring(guild[#guild]))
+-- an empty message of the day: nothing for "motd", only the info for "both"
+STUB.Fire("GUILD_MOTD", "")
+assert(#GN.Lines() == 0, "no message of the day: nothing")
+ns.char.guildNoticeWhat = "both"
+assert(table.concat(GN.Lines(), "/") == "Hola.", "both without one: the info")
+ns.char.guildNoticeWhat = "motd"
+
 -- in the Recruit tab (officers only): turn it on or off, how often, when it last went
 B.Toggle()
 B.ShowTab("recruit")
 B.Refresh(); STUB.Advance(0.6)
 assert(B.noticeCheck:IsShown() and B.noticeCheck:GetChecked() == true, "the switch, on")
 assert(B.noticeEvery.text == string.format(L.RECRUIT_EVERY, 60), "how often: " .. tostring(B.noticeEvery.text))
+assert(B.noticeWhat.text == L.NOTICE_WHAT_motd and B.noticeStatus.text == L.NOTICE_EMPTY, "what, and nothing to say: " .. tostring(B.noticeStatus.text))
+ns.char.guildNoticeWhat = nil
+B.Refresh(); STUB.Advance(0.6)
+assert(B.noticeWhat.text == L.NOTICE_WHAT_info, "the info: " .. tostring(B.noticeWhat.text))
 assert(B.noticeStatus.text:find("Tester", 1, true), "who sent it last: " .. tostring(B.noticeStatus.text))
 B.noticeCheck:SetChecked(false); B.noticeCheck.scripts.OnClick(B.noticeCheck)
 assert(not GN.On(), "turned off from the tab")
 STUB.Advance(3 * 60 * 60)
-assert(#guild == 7, "off: nothing more")
+assert(#guild == 8, "off: nothing more")
 
 print("ok guild_notice")

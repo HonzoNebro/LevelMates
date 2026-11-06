@@ -57,7 +57,7 @@ The board opens on **Home**, a dashboard: the guild level, who is online, your i
 - **Copy for Discord**: the "Discord" button puts the current tab into a box as ready-to-paste Discord text. Nothing is sent anywhere.
 
 ### Officers
-- **Recruit tab** (officers and guild master only): three shared templates with placeholders (`{guild}`, `{online}`, `{level}`), posted to channel 2 (Trade) or 1 (General) with a click, a 10-minute wait shared by all officers, and an optional reminder that offers a one-click Post. **Guild info in guild chat**: an officer can have the guild's Information text said in guild chat by itself every 30 to 240 minutes (off by default, one officer sends it, never in combat or instances). **Inactive** lists members away for 14 or 30 days, with rank, last login and join date (noted from the day LevelMates first sees them).
+- **Recruit tab** (officers and guild master only): three shared templates with placeholders (`{guild}`, `{online}`, `{level}`), posted to channel 2 (Trade) or 1 (General) with a click, a 10-minute wait shared by all officers, and an optional reminder that offers a one-click Post. **Guild chat notice**: an officer can have the guild's Information text, the message of the day, or both said in guild chat by itself every 30 to 240 minutes (off by default, one officer sends it, never in combat or instances). **Inactive** lists members away for 14 or 30 days, with rank, last login and join date (noted from the day LevelMates first sees them).
 
 ## Privacy
 
@@ -159,7 +159,7 @@ El tablón se abre en **Inicio**, un panel: el nivel de la hermandad, los conect
 - **Copiar para Discord**: el botón "Discord" pone la pestaña actual en un cuadro como texto listo para pegar en Discord. No se envía nada a ningún sitio.
 
 ### Oficiales
-- **Pestaña Reclutar** (solo oficiales y maestro): tres plantillas compartidas con comodines (`{hermandad}`, `{conectados}`, `{nivel}`), publicadas en el canal 2 (Comercio) o 1 (General) con un clic, una espera de 10 minutos compartida entre oficiales y un recordatorio opcional que ofrece Publicar con un clic. **Información en el chat de la hermandad**: un oficial puede hacer que la información de la hermandad salga sola en su chat cada 30 a 240 minutos (apagado por defecto, la envía un solo oficial, nunca en combate ni en instancias). **Inactivos** lista a quien lleva 14 o 30 días sin entrar, con rango, última conexión y fecha de ingreso (apuntada desde el día en que LevelMates lo ve por primera vez).
+- **Pestaña Reclutar** (solo oficiales y maestro): tres plantillas compartidas con comodines (`{hermandad}`, `{conectados}`, `{nivel}`), publicadas en el canal 2 (Comercio) o 1 (General) con un clic, una espera de 10 minutos compartida entre oficiales y un recordatorio opcional que ofrece Publicar con un clic. **Aviso en el chat de la hermandad**: un oficial puede hacer que la información de la hermandad, el mensaje del día o los dos salgan solos en su chat cada 30 a 240 minutos (apagado por defecto, la envía un solo oficial, nunca en combate ni en instancias). **Inactivos** lista a quien lleva 14 o 30 días sin entrar, con rango, última conexión y fecha de ingreso (apuntada desde el día en que LevelMates lo ve por primera vez).
 
 ## Privacidad
 

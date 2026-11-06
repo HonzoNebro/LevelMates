@@ -788,9 +788,17 @@ local function Build()
 		for _, n in ipairs(ns.GuildNotice.EVERY_CHOICES) do options[#options + 1] = { value = n, label = string.format(L.RECRUIT_EVERY, n) } end
 		W.PickMenu(self, L.NOTICE_EVERY_TITLE, options, ns.GuildNotice.Every(), function(n) ns.char.guildNoticeEvery = n; B.Refresh() end)
 	end)
+	-- what to say: the guild info, the message of the day, or both
+	local noticeWhat = ns.Skin.Button(rp)
+	noticeWhat:SetSize(150, 20); noticeWhat:SetPoint("TOPLEFT", 26, -288)
+	noticeWhat:SetScript("OnClick", function(self)
+		local options = {}
+		for _, w in ipairs(ns.GuildNotice.WHAT_CHOICES) do options[#options + 1] = { value = w, label = L["NOTICE_WHAT_" .. w] } end
+		W.PickMenu(self, L.NOTICE_WHAT_TITLE, options, ns.GuildNotice.What(), function(w) ns.char.guildNoticeWhat = w; B.Refresh() end)
+	end)
 	local noticeStatus = rp:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	noticeStatus:SetPoint("TOPLEFT", 4, -288); noticeStatus:SetJustifyH("LEFT"); noticeStatus:SetTextColor(0.7, 0.7, 0.7)
-	B.noticeCheck, B.noticeEvery, B.noticeStatus = notice, noticeEvery, noticeStatus
+	noticeStatus:SetPoint("LEFT", noticeWhat, "RIGHT", 10, 0); noticeStatus:SetJustifyH("LEFT"); noticeStatus:SetTextColor(0.7, 0.7, 0.7)
+	B.noticeCheck, B.noticeEvery, B.noticeWhat, B.noticeStatus = notice, noticeEvery, noticeWhat, noticeStatus
 	-- Recruit tab: "Inactive" (bottom left) swaps the templates for members who have not logged in; 14 or 30 days.
 	local view = ns.Skin.Button(f)
 	view:SetSize(120, 20); view:SetPoint("BOTTOMLEFT", 12, 3); view:SetText(L.BTN_INACTIVE)
@@ -2460,6 +2468,7 @@ local function RefreshRecruit()
 	local GN, nl = ns.GuildNotice, ns.GuildNotice.Last()
 	B.noticeCheck:SetChecked(GN.On())
 	B.noticeEvery:SetText(string.format(L.RECRUIT_EVERY, GN.Every()))
+	B.noticeWhat:SetText(L["NOTICE_WHAT_" .. GN.What()])
 	local said = nl and string.format(L.NOTICE_LAST, ns.Journal.Duration(math.max(0, ((GetServerTime and GetServerTime()) or time()) - nl.at)), nl.by) or L.NOTICE_NONE   -- the server's clock, as it was stored
 	B.noticeStatus:SetText(#GN.Lines() == 0 and L.NOTICE_EMPTY or said)
 end

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **The guild chat notice can say the message of the day** instead of the guild info, or both (Guild > Recruit > What to say). The message of the day is kept from the moment the game hands it, so a /reload does not lose it.
+
 ## 0.7.0
 
 - **Guild info in guild chat, by itself** (Guild > Recruit, officers and guild master): turn it on and the guild's Information text is said in guild chat every 30, 60, 120 or 240 minutes, so whoever is online reads it. Off by default; one officer sends it (the last time is shared), never in combat or in an instance. The only thing LevelMates writes in chat without a click; public channels still need one.

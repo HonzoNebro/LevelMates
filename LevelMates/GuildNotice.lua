@@ -31,6 +31,13 @@ function GN.Every()
 	for _, c in ipairs(GN.EVERY_CHOICES) do if c == n then return n end end
 	return 60
 end
+-- What to say: "info" (the guild info, by default), "motd" (the game's message of the day) or "both" (that one first).
+GN.WHAT_CHOICES = { "info", "motd", "both" }
+function GN.What()
+	local w = ns.char and ns.char.guildNoticeWhat
+	for _, c in ipairs(GN.WHAT_CHOICES) do if c == w then return w end end
+	return "info"
+end
 function GN.Last() return store().last end   -- { at = seconds, by = name }
 function GN.Wait()
 	local l = store().last
@@ -38,7 +45,7 @@ function GN.Wait()
 	return math.max(0, GN.Every() * 60 - (now() - l.at))
 end
 
--- What is said: the guild info's lines that say something, without codes ("|n" is a line break), each line in
+-- What is said: the chosen text's lines that say something, without codes ("|n" is a line break), each line in
 -- messages of at most 255 bytes broken between words, and at most GN.MAX_LINES messages in all.
 local function wrap(line, out)
 	while #line > 255 and #out < GN.MAX_LINES do
@@ -50,11 +57,33 @@ local function wrap(line, out)
 	end
 	if line ~= "" and #out < GN.MAX_LINES then out[#out + 1] = line end
 end
-function GN.Lines()
+local function infoText()
 	local ok, info = pcall(function() return GetGuildInfoText and GetGuildInfoText() end)
 	info = ok and ns.Plain(info) or nil
-	local out = {}
-	if type(info) ~= "string" then return out end
+	return type(info) == "string" and info or ""
+end
+-- The game's message of the day comes only with its GUILD_MOTD event (at login, or when it changes): asking for it
+-- (C_GuildInfo.GetMOTD) is a blocked action on Forever. Kept per guild, so a /reload does not lose it.
+local motdEv = CreateFrame("Frame")
+motdEv:RegisterEvent("GUILD_MOTD")
+motdEv:SetScript("OnEvent", function(_, _, text)
+	text = ns.Plain(text)
+	if type(text) ~= "string" then return end
+	if ns.db and ns.GuildKey() ~= "?" then store().motd = text; GN.earlyMotd = nil else GN.earlyMotd = text end   -- before the guild is known: kept until it is
+end)
+local function motdText()
+	if not ns.db or ns.GuildKey() == "?" then return "" end
+	if GN.earlyMotd then store().motd = GN.earlyMotd; GN.earlyMotd = nil end
+	local m = store().motd
+	return type(m) == "string" and m or ""
+end
+
+function GN.Lines()
+	local what, out = GN.What(), {}
+	local parts = {}
+	if what ~= "info" then parts[#parts + 1] = motdText() end
+	if what ~= "motd" then parts[#parts + 1] = infoText() end
+	local info = table.concat(parts, "\n")
 	info = info:gsub("|n", "\n"):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("|H.-|h(.-)|h", "%1"):gsub("|T.-|t", ""):gsub("|", "")
 	for line in (info .. "\n"):gmatch("([^\n]*)\n") do
 		line = line:gsub("%c", " "):gsub("^%s+", ""):gsub("%s+$", "")
