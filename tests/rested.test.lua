@@ -1,3 +1,4 @@
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { shareRested = false } }   -- chosen off (on by default since 0.7.3)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 STUB.Fire("PLAYER_ENTERING_WORLD", true, false); STUB.Advance(1)
@@ -9,7 +10,7 @@ local function sentRx(from)
 	for i = from, #STUB.sent do local k, f = C.Decode(STUB.sent[i].msg); if k == "rx" then out[#out + 1] = f.p end end
 	return out
 end
-assert(ns.db.settings.restedNotices == true and ns.db.settings.shareRested == false, "defaults: notice on, sharing off")
+assert(ns.db.settings.restedNotices == true and ns.db.settings.shareRested == false, "notice on, sharing off as chosen")
 
 -- calculation (UnitXPMax is 1000 in the stub)
 STUB.player.level = 20

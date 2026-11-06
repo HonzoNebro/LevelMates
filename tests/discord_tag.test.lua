@@ -1,5 +1,6 @@
 -- the bot tag: when the option is on, every Discord line starts with [LM1 ...] (key=value, no spaces in values), the
 -- human text after it; the whole line at most 236 bytes; off: the line as before
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { discordTag = false } }   -- chosen off (on by default since 0.7.3)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 STUB.Fire("PLAYER_ENTERING_WORLD", true, false); STUB.Advance(30)
@@ -13,7 +14,7 @@ local function fields(line)
 end
 local run = { id = "a1b2c3d4", d = 101, at = 29333333, by = "Santo Fiämbre", role = "T", size = 40, caps = A.Caps(101), joined = {}, n = "traed pociones" }
 
-assert(ns.db.settings.discordTag == false, "off by default")
+assert(ns.db.settings.discordTag == false, "off, as chosen")
 assert(not DC.Line("new", run):find("[LM1", 1, true), "off: no tag")
 ns.db.settings.discordTag = true
 local line = DC.Line("new", run)

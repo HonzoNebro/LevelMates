@@ -1,5 +1,6 @@
 -- the guild leader or an officer turns the Discord bot tag on for the whole guild (a record, like LevelMates' MOTD);
 -- each player can still opt out
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { discordTag = false } }   -- about the guild tag: my own tag chosen off (on by default since 0.7.3)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 STUB.Fire("PLAYER_ENTERING_WORLD", true, false); STUB.Advance(30)

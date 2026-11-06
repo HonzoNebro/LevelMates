@@ -2,12 +2,13 @@
 COMBATLOG_XPGAIN_FIRSTPERSON = "%s dies, you gain %d experience."
 COMBATLOG_XPGAIN_FIRSTPERSON_UNNAMED = "You gain %d experience."
 STUB.player.xp = 0
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { levelBar = false } }   -- chosen off (on by default since 0.7.3)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 STUB.Fire("PLAYER_ENTERING_WORLD", true, false); STUB.Advance(1)
 local LB = ns.LevelBar
 
-assert(not (LB.frame and LB.frame:IsShown()), "off by default")
+assert(not (LB.frame and LB.frame:IsShown()), "off, as chosen")
 assert(LB.Rate() == nil and LB.TimeToLevel() == nil, "no samples: no rate, no division by zero")
 
 -- 300 XP in 10 minutes → 1800 per hour

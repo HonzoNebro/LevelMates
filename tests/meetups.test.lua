@@ -1,3 +1,4 @@
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { shareQuests = false, shareRested = false } }   -- not what this test is about (both on by default since 0.7.3: their messages would take the send budget)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 ns.char.groupsView = "catalog"   -- these checks are about the catalogue cards (the Groups section opens on Groups)

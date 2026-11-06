@@ -1,4 +1,5 @@
 -- every group carries its activity, size and slots per role, Now (lfg) and scheduled (qd)
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { discordTag = false } }   -- the plain lines: the bot tag chosen off (on by default since 0.7.3)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 STUB.Fire("PLAYER_ENTERING_WORLD", true, false); STUB.Advance(30)

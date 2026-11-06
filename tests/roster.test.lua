@@ -1,3 +1,4 @@
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { shareQuests = false, shareRested = false, shareXp = false } }   -- not what this test is about (both on by default since 0.7.3: their messages would take the send budget)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 ns.db.settings.shareFeed = false   -- the wall (fe) has its own test

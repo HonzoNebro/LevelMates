@@ -472,6 +472,7 @@ function Region:UnlockHighlight() self.lit = false end
 function Region:SetBlendMode() end
 function Region:SetDesaturated(v) self.desaturated = v end
 function Region:SetShadowColor() end
+function Region:SetShadowOffset(x, y) self.shadowOffset = { x, y } end
 function Region:GetTextColor() local c = self.color or { 1, 1, 1 }; return c[1], c[2], c[3], 1 end
 STUB.handled = {}
 STUB.errorHandler = function(msg) STUB.handled[#STUB.handled + 1] = msg end

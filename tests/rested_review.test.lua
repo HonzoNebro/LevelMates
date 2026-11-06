@@ -1,4 +1,5 @@
 -- Final review of rested XP: driven through the real setting object, as the options panel does.
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { shareQuests = false, shareRested = false } }   -- not what this test is about (both on by default since 0.7.3: their messages would take the send budget)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 STUB.Fire("PLAYER_ENTERING_WORLD", true, false); STUB.Advance(1)

@@ -47,8 +47,10 @@ assert(G.ads.m0000001 == nil, "bye removes the poster's ad")
 STUB.Advance(31)
 assert(G.Post(2, "T"))
 local myId = G.mine.id
+local before = #STUB.sent
 ns.db.settings.share = false; C.Stop()
-local k, f = C.Decode(STUB.sent[#STUB.sent].msg)
+local k, f
+for i = before + 1, #STUB.sent do local kk, ff = C.Decode(STUB.sent[i].msg); if kk == "lfgx" then k, f = kk, ff end end   -- next to other withdrawals (rested XP, on by default since 0.7.3)
 assert(k == "lfgx" and f.id == myId, "lfgx goes out before the transport stops: " .. tostring(k))
 
 -- 4c. logging out withdraws it before saying bye

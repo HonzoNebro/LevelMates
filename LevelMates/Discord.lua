@@ -57,8 +57,9 @@ end
 function DC.TagOn()
 	local st = ns.db and ns.db.settings
 	if not st then return false end
+	if st.discordTagOff then return false end   -- "No bot tag" wins: my own tag is on by default since 0.7.3
 	if st.discordTag then return true end
-	return ns.GuildNotes and ns.GuildNotes.GuildTag() and not st.discordTagOff or false
+	return ns.GuildNotes and ns.GuildNotes.GuildTag() and true or false
 end
 -- The bot tag (Options > Discord bot): "[LM1 key=value ...]" first, so a cut line keeps it; values without spaces
 -- ("_"), "]", "=", "[" or "|". Format: docs/discord-tag.md.

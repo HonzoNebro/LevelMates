@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.3
+
+- **Every feature is on by default**: sharing your quests, XP per hour and rested XP, names on the map pins, the level bar and the Discord bot tag. Whoever had them off finds them on once after updating, with one chat line naming them (they go off in /lm options); turning one off afterwards sticks. The bot tag stays off for whoever ticked "No bot tag". Debug and the officers' guild chat notice stay off.
+- **Guildmates on the map, easier to spot**: each pin is a circle in their class colour with the round class icon inside and their name above in the same colour; a crowd is a gold circle with the count.
+- **"No bot tag for me" always wins**, over your own tag and the guild's (it used to cover only the guild's).
+
 ## 0.7.2
 
 - **Share my position is on by default**, so guildmates show on the guild map. Whoever had it off finds it on once after updating, with a chat line saying so and where to turn it off (Options > Share > "Share my position"); turning it off afterwards sticks.

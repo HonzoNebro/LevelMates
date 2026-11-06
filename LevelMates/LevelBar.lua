@@ -1,4 +1,4 @@
--- LevelBar.lua: an optional small bar (off by default; /lm barra): level, XP with the rested part, XP per hour over the
+-- LevelBar.lua: an optional small bar (on by default since 0.7.3; /lm barra): level, XP with the rested part, XP per hour over the
 -- last 15 minutes, time to level, time in the level and kills in the level (from the client's own XP message).
 -- Movable, with a lock. Spec 2026-10-12-levelmates-interface-design (B3).
 local _, ns = ...

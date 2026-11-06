@@ -4,8 +4,8 @@ ns.TITLE = "Forever Guild"   -- the name players see; inside (folder, saved data
 ns.VERSION = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(ADDON, "Version") or "dev"
 
 local DEFAULTS = {
-	share = true, sharePos = true, shareQuests = false, shareXp = false, shareRested = false,
-	matchNotices = true, helpNotices = true, lfgNotices = true, palNotices = true, restedNotices = true, goalNotices = true, wishNotices = true, screenNotices = true, levelNotices = true, shareProfessions = true, shareFeed = true, feedLoot = true, rareNotices = true, mapPins = true, mapNames = false, shareBank = true, shareGear = true, readChatAds = true, shareBuild = true, shareDeaths = true, trainerNotices = true, groupXp = true, askNotices = true, shareAlts = true, sharePoints = true, shareAchievements = true, ink = 4, theme = "dark", sound = true, minimap = true, stripNotices = true, dingBanner = true, levelBar = false, boardScale = 100, discordTag = false, discordTagOff = false,
+	share = true, sharePos = true, shareQuests = true, shareXp = true, shareRested = true,
+	matchNotices = true, helpNotices = true, lfgNotices = true, palNotices = true, restedNotices = true, goalNotices = true, wishNotices = true, screenNotices = true, levelNotices = true, shareProfessions = true, shareFeed = true, feedLoot = true, rareNotices = true, mapPins = true, mapNames = true, shareBank = true, shareGear = true, readChatAds = true, shareBuild = true, shareDeaths = true, trainerNotices = true, groupXp = true, askNotices = true, shareAlts = true, sharePoints = true, shareAchievements = true, ink = 4, theme = "dark", sound = true, minimap = true, stripNotices = true, dingBanner = true, levelBar = true, boardScale = 100, discordTag = true, discordTagOff = false,
 	transport = "auto", debug = false, language = "auto",
 }
 
@@ -169,13 +169,34 @@ end
 
 -- Defaults that changed after release, applied once per account (the old default was saved on the first load).
 -- 0.7.2: sharing my position (the guild map, rares) is on; whoever had it off sees it on once, and is told where it goes off.
+-- 0.7.3: every feature switch is on (quests, XP per hour, rested XP, names on the map, the level bar, the bot tag): the
+-- same, once, with one line naming what went on. The bot tag stays off for whoever ticked "No bot tag".
+ns.ALL_ON = { "shareQuests", "shareXp", "shareRested", "mapNames", "levelBar", "discordTag" }
+ns.ALL_ON_NAMES = { shareQuests = "OPT_QUESTS", shareXp = "OPT_XPH", shareRested = "OPT_RESTED", mapNames = "OPT_MAP_NAMES", levelBar = "OPT_LEVELBAR", discordTag = "OPT_DISCORD_TAG" }
 function ns.UpgradeSettings()
-	if ns.db.posDefaultOn then return end
-	ns.db.posDefaultOn = true
-	if not ns.db.settings.sharePos then ns.db.settings.sharePos = true; ns.posTurnedOn = true end
+	local st = ns.db.settings
+	if not ns.db.posDefaultOn then
+		ns.db.posDefaultOn = true
+		if not st.sharePos then st.sharePos = true; ns.posTurnedOn = true end
+	end
+	if not ns.db.allOn073 then
+		ns.db.allOn073 = true
+		for _, k in ipairs(ns.ALL_ON) do
+			if not st[k] and not (k == "discordTag" and st.discordTagOff) then
+				st[k] = true
+				ns.turnedOn = ns.turnedOn or {}; table.insert(ns.turnedOn, k)
+			end
+		end
+	end
 end
 ns.On("LM_WORLD", function()
 	if ns.posTurnedOn then ns.posTurnedOn = nil; if ns.db.settings.share then ns.Chat("%s", ns.L.POS_NOW_ON) end end   -- invisible on the board: nothing goes out, so nothing to tell
+	if ns.turnedOn then
+		local names = {}
+		for _, k in ipairs(ns.turnedOn) do names[#names + 1] = "\"" .. ns.L[ns.ALL_ON_NAMES[k]] .. "\"" end
+		ns.turnedOn = nil
+		ns.Chat(ns.L.ALL_NOW_ON, table.concat(names, ", "))
+	end
 end)
 
 local f = CreateFrame("Frame")

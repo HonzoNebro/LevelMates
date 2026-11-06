@@ -1,4 +1,5 @@
--- GuildMap.lua: guildmates who share their position, as class-icon pins on the world map being shown (their zone's
+-- GuildMap.lua: guildmates who share their position, as pins (a circle in the class colour, the round class icon
+-- inside, the first name above) on the world map being shown (their zone's
 -- map or a continent), the same size at any zoom, bundled when crowded; a click routes there. Opening the map asks
 -- for fresh positions. And the busiest zone for the Guildmates tab.
 -- Specs 2026-10-10-levelmates-social-leveling-design (B3) and 2026-10-12-levelmates-quests-map-design (3).
@@ -6,17 +7,27 @@ local _, ns = ...
 local GM = {}
 ns.GuildMap = GM
 local L, R, C = ns.L, ns.Roster, ns.Comm
+local unpack = unpack or table.unpack
 GM.pins = {}
-GM.SIZE = 18
+GM.SIZE = 24   -- the circle; the class icon sits inside it
+GM.ICON = 18
+local CIRCLE = "Interface\\CharacterFrame\\TempPortraitAlphaMask"   -- the game's white disc, tinted per class
+local CLASS_CIRCLES = "Interface\\TargetingFrame\\UI-Classes-Circles"
+local GOLD = { 1, 0.82, 0 }
 
 local function pin(i)
 	local p = GM.pins[i]
 	if p then return p end
 	p = CreateFrame("Button", nil, WorldMapFrame:GetCanvas())
 	p:SetSize(GM.SIZE, GM.SIZE); p:SetFrameStrata("HIGH")
-	p.icon = p:CreateTexture(nil, "OVERLAY"); p.icon:SetAllPoints()
-	p.count = p:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall"); p.count:SetPoint("CENTER")
+	-- a circle in the class colour, a dark rim round it so it reads on any map, the round class icon inside
+	p.shadow = p:CreateTexture(nil, "BACKGROUND", nil, 1); p.shadow:SetTexture(CIRCLE); p.shadow:SetSize(GM.SIZE + 2, GM.SIZE + 2)
+	p.shadow:SetPoint("CENTER"); p.shadow:SetVertexColor(0, 0, 0, 0.85)
+	p.ring = p:CreateTexture(nil, "BACKGROUND", nil, 2); p.ring:SetTexture(CIRCLE); p.ring:SetSize(GM.SIZE, GM.SIZE); p.ring:SetPoint("CENTER")
+	p.icon = p:CreateTexture(nil, "ARTWORK"); p.icon:SetSize(GM.ICON, GM.ICON); p.icon:SetPoint("CENTER")
+	p.count = p:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall"); p.count:SetPoint("CENTER")
 	p.label = p:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall"); p.label:SetPoint("BOTTOM", p, "TOP", 0, 1)
+	if p.label.SetShadowColor then p.label:SetShadowColor(0, 0, 0, 1); p.label:SetShadowOffset(1, -1) end   -- readable on light ground
 	p:SetScript("OnEnter", function(self)
 		if not (GameTooltip and self.names) then return end
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -39,10 +50,16 @@ local function pin(i)
 	return p
 end
 
+-- The round class icon (the game's own sheet, in every client); no class known: an empty dark centre.
 local function classIcon(tex, class)
-	local atlas = class and ("classicon-" .. class:lower())
-	if atlas and C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(atlas) then tex:SetAtlas(atlas) return end
-	tex:SetTexture("Interface\\Minimap\\PartyRaidBlips"); tex:SetTexCoord(0.875, 1, 0.25, 0.5)   -- a plain dot
+	local coords = class and CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[class]
+	if coords then tex:SetTexture(CLASS_CIRCLES); tex:SetTexCoord(unpack(coords)); tex:SetVertexColor(1, 1, 1, 1); return end
+	tex:SetTexture(CIRCLE); tex:SetTexCoord(0, 1, 0, 1); tex:SetVertexColor(0.1, 0.1, 0.1, 0.9)
+end
+local function classColor(class)
+	local c = class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
+	if c then return c.r, c.g, c.b end
+	return 0.75, 0.75, 0.75   -- no class known: grey
 end
 
 -- The map's zoom: pins scale against it so they keep their size on screen.
@@ -62,14 +79,17 @@ function GM.Refresh()
 			local p = pin(i)
 			p.mate, p.names, p.route = e.names[1], e.names, e
 			p:SetScale(scale)
-			if #e.names > 1 then   -- a bundle: a gold disc with the count
-				p.icon:SetTexture("Interface\\Minimap\\PartyRaidBlips"); p.icon:SetTexCoord(0.5, 0.625, 0, 0.25)
+			if #e.names > 1 then   -- a bundle: a gold circle, dark inside, with the count
+				p.ring:SetVertexColor(GOLD[1], GOLD[2], GOLD[3], 1)
+				classIcon(p.icon, nil)
 				p.count:SetText(tostring(#e.names)); p.count:Show(); p.label:Hide()
 			else
 				local m = R.mates[e.names[1]]
+				local r, g, b = classColor(m and m.class)
+				p.ring:SetVertexColor(r, g, b, 1)
 				classIcon(p.icon, m and m.class)
 				p.count:Hide()
-				p.label:SetText(firstName(e.names[1])); p.label:SetShown(ns.db.settings.mapNames == true)
+				p.label:SetText(firstName(e.names[1])); p.label:SetTextColor(r, g, b); p.label:SetShown(ns.db.settings.mapNames == true)
 			end
 			p:ClearAllPoints()
 			p:SetPoint("CENTER", canvas, "TOPLEFT", e.x / scale, -e.y / scale)

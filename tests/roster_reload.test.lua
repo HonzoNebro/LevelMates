@@ -1,4 +1,5 @@
 -- /reload: PLAYER_ENTERING_WORLD(false, true) with a fresh Lua state must start the roster like a login.
+LevelMatesDB = { version = 1, posDefaultOn = true, allOn073 = true, chars = {}, settings = { shareQuests = false, shareRested = false } }   -- not what this test is about (both on by default since 0.7.3: their messages would take the send budget)
 STUB.Fire("ADDON_LOADED", "LevelMates")
 local _, ns = ...
 local R, C = ns.Roster, ns.Comm

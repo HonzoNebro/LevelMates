@@ -2,6 +2,7 @@
 import { Net } from '../tools/lua-net.mjs';
 const net = new Net(['Ana', 'Ben', 'Cris']);
 net.run('Ben', 'local _, ns = ...; ns.db.settings.sharePos = true');
+net.run('Cris', 'local _, ns = ...; ns.db.settings.sharePos = false');   // chosen off (on by default since 0.7.2)
 net.advance(40);
 const count = (who) => net.run(who, 'local _, ns = ...; local n = 0; for _, s in ipairs(STUB.sent) do if (ns.Comm.Decode(s.msg)) == "hb" then n = n + 1 end end; return n');
 const ben0 = count('Ben'), cris0 = count('Cris');
