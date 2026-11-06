@@ -2,7 +2,7 @@
 STUB.Fire("ADDON_LOADED", "LevelMates")
 assert(type(LevelMatesDB) == "table", "db created")
 assert(LevelMatesDB.settings.share == true, "default share on")
-assert(LevelMatesDB.settings.sharePos == false, "position off by default")
+assert(LevelMatesDB.settings.sharePos == true, "position on by default (since 0.7.2)")
 assert(LevelMatesDB.settings.transport == "auto", "transport auto")
 local _, ns = ...
 assert(ns.db == LevelMatesDB, "ns.db bound")

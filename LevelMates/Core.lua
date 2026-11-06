@@ -4,7 +4,7 @@ ns.TITLE = "Forever Guild"   -- the name players see; inside (folder, saved data
 ns.VERSION = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(ADDON, "Version") or "dev"
 
 local DEFAULTS = {
-	share = true, sharePos = false, shareQuests = false, shareXp = false, shareRested = false,
+	share = true, sharePos = true, shareQuests = false, shareXp = false, shareRested = false,
 	matchNotices = true, helpNotices = true, lfgNotices = true, palNotices = true, restedNotices = true, goalNotices = true, wishNotices = true, screenNotices = true, levelNotices = true, shareProfessions = true, shareFeed = true, feedLoot = true, rareNotices = true, mapPins = true, mapNames = false, shareBank = true, shareGear = true, readChatAds = true, shareBuild = true, shareDeaths = true, trainerNotices = true, groupXp = true, askNotices = true, shareAlts = true, sharePoints = true, shareAchievements = true, ink = 4, theme = "dark", sound = true, minimap = true, stripNotices = true, dingBanner = true, levelBar = false, boardScale = 100, discordTag = false, discordTagOff = false,
 	transport = "auto", debug = false, language = "auto",
 }
@@ -167,6 +167,17 @@ function ns.TabOrder(boxes)
 	end
 end
 
+-- Defaults that changed after release, applied once per account (the old default was saved on the first load).
+-- 0.7.2: sharing my position (the guild map, rares) is on; whoever had it off sees it on once, and is told where it goes off.
+function ns.UpgradeSettings()
+	if ns.db.posDefaultOn then return end
+	ns.db.posDefaultOn = true
+	if not ns.db.settings.sharePos then ns.db.settings.sharePos = true; ns.posTurnedOn = true end
+end
+ns.On("LM_WORLD", function()
+	if ns.posTurnedOn then ns.posTurnedOn = nil; if ns.db.settings.share then ns.Chat("%s", ns.L.POS_NOW_ON) end end   -- invisible on the board: nothing goes out, so nothing to tell
+end)
+
 local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -178,6 +189,7 @@ f:SetScript("OnEvent", function(_, event, arg1, ...)
 		ns.db = LevelMatesDB
 		ns.db.settings = ns.db.settings or {}
 		for k, v in pairs(DEFAULTS) do if ns.db.settings[k] == nil then ns.db.settings[k] = v end end
+		ns.UpgradeSettings()
 		ns.db.chars = ns.db.chars or {}
 		local key = ns.PlayerKey()
 		ns.db.chars[key] = ns.db.chars[key] or {}
