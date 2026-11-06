@@ -137,6 +137,18 @@ STUB.Fire("GUILD_MOTD", "")
 assert(#GN.Lines() == 0, "no message of the day: nothing")
 ns.char.guildNoticeWhat = "both"
 assert(table.concat(GN.Lines(), "/") == "Hola.", "both without one: the info")
+
+-- my own text: written in the tab, kept per guild, cleaned like the rest
+ns.char.guildNoticeWhat = "text"
+assert(#GN.Lines() == 0, "nothing written yet")
+GN.SetText("  Banda el jueves a las 21:00, |cffff0000apuntaos|r en el Discord  ")
+assert(table.concat(GN.Lines(), "/") == "Banda el jueves a las 21:00, apuntaos en el Discord", "my text: " .. table.concat(GN.Lines(), "/"))
+STUB.player.guild = "Otra Hermandad"
+assert(#GN.Lines() == 0, "another guild's text is not this one's")
+STUB.player.guild = "Test Guild"
+pause(61)
+STUB.Advance(ROUND)
+assert(#guild == 9 and guild[9] == "Banda el jueves a las 21:00, apuntaos en el Discord", "my text said")
 ns.char.guildNoticeWhat = "motd"
 
 -- in the Recruit tab (officers only): turn it on or off, how often, when it last went
@@ -148,11 +160,18 @@ assert(B.noticeEvery.text == string.format(L.RECRUIT_EVERY, 60), "how often: " .
 assert(B.noticeWhat.text == L.NOTICE_WHAT_motd and B.noticeStatus.text == L.NOTICE_EMPTY, "what, and nothing to say: " .. tostring(B.noticeStatus.text))
 ns.char.guildNoticeWhat = nil
 B.Refresh(); STUB.Advance(0.6)
-assert(B.noticeWhat.text == L.NOTICE_WHAT_info, "the info: " .. tostring(B.noticeWhat.text))
+assert(B.noticeWhat.text == L.NOTICE_WHAT_info and not B.noticeText:IsShown(), "the info, no box: " .. tostring(B.noticeWhat.text))
+ns.char.guildNoticeWhat = "text"
+B.Refresh(); STUB.Advance(0.6)
+assert(B.noticeText:IsShown() and B.noticeText:GetText() == "Banda el jueves a las 21:00, apuntaos en el Discord", "my text, in its box")
+B.noticeText:SetText("Hoy quedada en Ventormenta"); B.noticeText.scripts.OnEnterPressed(B.noticeText)
+assert(table.concat(GN.Lines(), "/") == "Hoy quedada en Ventormenta", "written from the tab")
+ns.char.guildNoticeWhat = nil
+B.Refresh(); STUB.Advance(0.6)
 assert(B.noticeStatus.text:find("Tester", 1, true), "who sent it last: " .. tostring(B.noticeStatus.text))
 B.noticeCheck:SetChecked(false); B.noticeCheck.scripts.OnClick(B.noticeCheck)
 assert(not GN.On(), "turned off from the tab")
 STUB.Advance(3 * 60 * 60)
-assert(#guild == 8, "off: nothing more")
+assert(#guild == 9, "off: nothing more")
 
 print("ok guild_notice")

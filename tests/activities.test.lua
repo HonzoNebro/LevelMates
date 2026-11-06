@@ -22,7 +22,7 @@ assert(not clean:find("|", 1, true) and #clean <= 40 and clean:sub(1, 4) == "roj
 assert(A.EncodeCaps({ T = 2, H = 3, D = 5 }) == "T2H3D5" and caps(A.DecodeCaps("T2H3D5")) == "T2H3D5", "caps as text and back")
 assert(A.DecodeCaps("nonsense") == nil, "bad caps text: nil")
 local d = A.List("d")
-assert(#d == 19, "19 dungeons")
+assert(#d == 31, "31 dungeons")
 for i, x in ipairs(D.Sorted()) do assert(d[i].id == x.id, "in the dungeons' order") end
 local r = A.List("r")
 assert(r[1].id == 101 and r[#r].id == 190 and r[#r].free, "raids, the free one last")

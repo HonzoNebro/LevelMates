@@ -28,7 +28,7 @@ assert(B.helpButton.template == "UIPanelButtonTemplate", "the game's red buttons
 assert(B.tabs.mates.skinTab and B.tabs.mates.enabled == false and B.tabs.mates.glow:IsShown() and not B.tabs.lfg.glow:IsShown(), "icon tabs, the active one lit")
 B.ShowTab("lfg")
 local fits, far
-for _, c in ipairs(B.cards) do if c.fits then fits = c else far = c end end
+for _, c in ipairs(B.cards) do if c:IsShown() then if c.fits then fits = c else far = c end end end   -- the shown page (other pages' cards wait hidden)
 assert(fits.backdropBorder[1] == SK.C.card[1] and far.backdropBorder[1] == SK.C.cardDim[1], "cards keep their gold or dim border")
 ns.MateCard.Show("Nadie")
 local cardPage = (ns.MateCard.frame.Inset and ns.MateCard.frame.Inset.page) or ns.MateCard.frame.page

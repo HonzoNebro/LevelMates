@@ -31,8 +31,10 @@ function GN.Every()
 	for _, c in ipairs(GN.EVERY_CHOICES) do if c == n then return n end end
 	return 60
 end
--- What to say: "info" (the guild info, by default), "motd" (the game's message of the day) or "both" (that one first).
-GN.WHAT_CHOICES = { "info", "motd", "both" }
+-- What to say: "info" (the guild info, by default), "motd" (the game's message of the day), "both" (that one first) or
+-- "text" (the officer's own, written in the Recruit tab and kept per guild; not shared with the other officers).
+GN.WHAT_CHOICES = { "info", "motd", "both", "text" }
+GN.TEXT_MAX = 250   -- letters
 function GN.What()
 	local w = ns.char and ns.char.guildNoticeWhat
 	for _, c in ipairs(GN.WHAT_CHOICES) do if c == w then return w end end
@@ -78,11 +80,21 @@ local function motdText()
 	return type(m) == "string" and m or ""
 end
 
+function GN.Text() local t = ns.db and ns.GuildKey() ~= "?" and store().text; return type(t) == "string" and t or "" end
+function GN.SetText(text)
+	if not ns.db or ns.GuildKey() == "?" then return false end
+	local clean = tostring(text or ""):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("|", ""):gsub("%c", " ")
+	store().text = ns.CutUtf8(strtrim(clean), GN.TEXT_MAX * 4)
+	ns.Fire("LM_RECRUIT_CHANGED")
+	return true
+end
+
 function GN.Lines()
 	local what, out = GN.What(), {}
 	local parts = {}
-	if what ~= "info" then parts[#parts + 1] = motdText() end
-	if what ~= "motd" then parts[#parts + 1] = infoText() end
+	if what == "text" then parts[1] = GN.Text() end
+	if what == "motd" or what == "both" then parts[#parts + 1] = motdText() end
+	if what == "info" or what == "both" then parts[#parts + 1] = infoText() end
 	local info = table.concat(parts, "\n")
 	info = info:gsub("|n", "\n"):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("|H.-|h(.-)|h", "%1"):gsub("|T.-|t", ""):gsub("|", "")
 	for line in (info .. "\n"):gmatch("([^\n]*)\n") do

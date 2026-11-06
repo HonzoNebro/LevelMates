@@ -25,6 +25,7 @@ B.KCOLS = { 150, 1, 339, 50, 60 }   -- class: who or macro, -, points or macro t
 B.HCOLS = { 170, 1, 279, 80, 70 }   -- home: who or what, -, details, numbers, action (same total as B.COLS)
 B.ICOLS = { 150, 50, 160, 110, 130 }   -- inactive members: name, level, rank, away, joined (same total as B.COLS)   -- class: who or macro, -, points or macro text, level, action (same total as B.COLS)
 B.CARD_COLS, B.CARD_GAP, B.CARD_H, B.ART_H = 5, 8, 104, 50   -- dungeon cards (room for two-line names)
+B.GRID_PAGE = 15   -- cards per page: three rows, the book's own height; more turn pages
 -- Tabs, in order; each key's label is L[TAB_LABELS[key]].
 B.TAB_KEYS = { "home", "mates", "lfg", "guild", "journal" }   -- the five main tabs
 B.GUILD_KEYS = { "feed", "goals", "wishes", "crafts", "class", "members", "bank", "loot", "recruit" }   -- the Guild tab's sub-sections
@@ -127,7 +128,7 @@ local function Build()
 	local search = CreateFrame("EditBox", nil, f, "SearchBoxTemplate")
 	search:SetSize(B.SEARCH_W, 20); search:SetPoint("TOPRIGHT", f, "TOPRIGHT", -30, -30)   -- in the top band, as the spellbook's
 	if search.Instructions then search.Instructions:SetText(L.SEARCH_HINT) end
-	search:SetScript("OnTextChanged", function(self) B.search = self:GetText() or ""; B.Refresh() end)
+	search:SetScript("OnTextChanged", function(self) B.search = self:GetText() or ""; B.gridPage = nil; B.Refresh() end)
 	-- "Discord": the current tab as text to paste in Discord (every tab).
 	local discord = ns.Skin.Button(f)
 	discord:SetSize(80, 20); discord:SetPoint("RIGHT", search, "LEFT", -12, 0); discord:SetText(L.BTN_DISCORD)
@@ -556,7 +557,7 @@ local function Build()
 	B.giftAdd = giftAdd
 
 	-- Groups tab: two views, bottom right: Groups (Now, today, later, the form) and the Catalogue (a card per activity).
-	local function setView(v) ns.char.groupsView = v; B.lfgTogether, B.lfgQuests = false, false; B.Refresh() end
+	local function setView(v) ns.char.groupsView = v; B.lfgTogether, B.lfgQuests, B.gridPage = false, false, nil; B.Refresh() end
 	local groupsB = ns.Skin.Button(f)
 	groupsB:SetSize(100, 20); groupsB:SetPoint("BOTTOMRIGHT", -12, 3); groupsB:SetText(L.BTN_GROUPS)
 	groupsB:SetScript("OnClick", function() setView("groups") end)
@@ -571,10 +572,20 @@ local function Build()
 	for i, k in ipairs({ "d", "r", "p" }) do
 		local chip = ns.Widgets.Chip(f, L["CAT_" .. k])
 		chip:SetWidth(100); chip:SetPoint("TOPLEFT", B.MARGIN + (i - 1) * 104, -(B.TOP - 2))
-		chip:SetScript("OnClick", function() ns.char.catalogKind = k; B.Refresh() end)
+		chip:SetScript("OnClick", function() ns.char.catalogKind = k; B.gridPage = nil; B.Refresh() end)
 		chip:Hide()
 		B.catalogChips[k] = chip
 	end
+	-- the cards' pages, right of the kinds: "<  2/3  >"
+	local pager = CreateFrame("Frame", nil, f)
+	pager:SetSize(110, 20); pager:SetPoint("TOPRIGHT", -B.MARGIN, -(B.TOP - 2)); pager:Hide()
+	local prev, nextB = ns.Skin.Button(pager), ns.Skin.Button(pager)
+	prev:SetSize(28, 20); prev:SetPoint("LEFT", 0, 0); prev:SetText("<")
+	nextB:SetSize(28, 20); nextB:SetPoint("RIGHT", 0, 0); nextB:SetText(">")
+	local pageText = pager:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall"); pageText:SetPoint("CENTER", 0, 0)
+	prev:SetScript("OnClick", function() B.gridPage = math.max(1, (B.gridPageShown or 1) - 1); B.Refresh() end)
+	nextB:SetScript("OnClick", function() B.gridPage = math.min(B.gridPages or 1, (B.gridPageShown or 1) + 1); B.Refresh() end)
+	B.gridPager, B.gridPrev, B.gridNext, B.gridPageText = pager, prev, nextB, pageText
 	-- "Together": groups the addon suggests from who is online (left of Calendar)
 	local together = ns.Skin.Button(f)
 	together:SetSize(120, 20); together:SetPoint("RIGHT", calendar, "LEFT", -6, 0); together:SetText(L.BTN_TOGETHER)
@@ -798,7 +809,13 @@ local function Build()
 	end)
 	local noticeStatus = rp:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	noticeStatus:SetPoint("LEFT", noticeWhat, "RIGHT", 10, 0); noticeStatus:SetJustifyH("LEFT"); noticeStatus:SetTextColor(0.7, 0.7, 0.7)
-	B.noticeCheck, B.noticeEvery, B.noticeWhat, B.noticeStatus = notice, noticeEvery, noticeWhat, noticeStatus
+	-- my own text, when that is what to say
+	local noticeText = CreateFrame("EditBox", nil, rp, "InputBoxTemplate")
+	noticeText:SetSize(B.WIDTH - 2 * B.MARGIN - 40, 22); noticeText:SetPoint("TOPLEFT", 32, -314); noticeText:SetAutoFocus(false); noticeText:SetMaxLetters(ns.GuildNotice.TEXT_MAX)
+	local function saveText(self) ns.GuildNotice.SetText(self:GetText()); self:ClearFocus() end
+	noticeText:SetScript("OnEnterPressed", saveText); noticeText:SetScript("OnEditFocusLost", saveText)
+	noticeText:Hide()
+	B.noticeCheck, B.noticeEvery, B.noticeWhat, B.noticeStatus, B.noticeText = notice, noticeEvery, noticeWhat, noticeStatus, noticeText
 	-- Recruit tab: "Inactive" (bottom left) swaps the templates for members who have not logged in; 14 or 30 days.
 	local view = ns.Skin.Button(f)
 	view:SetSize(120, 20); view:SetPoint("BOTTOMLEFT", 12, 3); view:SetText(L.BTN_INACTIVE)
@@ -1498,11 +1515,28 @@ local function GridVisible()
 	return out
 end
 
+-- The page to show: the one chosen with the arrows, or else the one with the first card my level fits.
+function B.GridPage(list)
+	local pages = math.max(1, math.ceil(#list / B.GRID_PAGE))
+	local p = B.gridPage
+	if not p then
+		p = 1
+		local mine = UnitLevel("player")
+		for i, id in ipairs(list) do if ns.Dungeons.Fits(id, mine) then p = math.ceil(i / B.GRID_PAGE); break end end
+	end
+	return math.min(math.max(1, p), pages), pages
+end
+
 local function FillGrid(list)
 	for i = 1, ROWS do ClearRow(B.rows[i]) end
 	local mine = UnitLevel("player")
+	local page, pages = B.GridPage(list)
+	B.gridPageShown, B.gridPages = page, pages
+	B.gridPageText:SetText(page .. "/" .. pages)
+	B.gridPager:SetShown(pages > 1)
+	local first = (page - 1) * B.GRID_PAGE
 	for i, c in ipairs(B.cards) do
-		local id = list[i]
+		local id = i <= B.GRID_PAGE and list[first + i] or nil
 		if id then
 			local d, ads = ns.Activities.Get(id), B.AdsFor(id)
 			local col, row = (i - 1) % B.CARD_COLS, math.floor((i - 1) / B.CARD_COLS)
@@ -2469,6 +2503,8 @@ local function RefreshRecruit()
 	B.noticeCheck:SetChecked(GN.On())
 	B.noticeEvery:SetText(string.format(L.RECRUIT_EVERY, GN.Every()))
 	B.noticeWhat:SetText(L["NOTICE_WHAT_" .. GN.What()])
+	B.noticeText:SetShown(GN.What() == "text")
+	if not B.noticeText:HasFocus() then B.noticeText:SetText(GN.Text()) end
 	local said = nl and string.format(L.NOTICE_LAST, ns.Journal.Duration(math.max(0, ((GetServerTime and GetServerTime()) or time()) - nl.at)), nl.by) or L.NOTICE_NONE   -- the server's clock, as it was stored
 	B.noticeStatus:SetText(#GN.Lines() == 0 and L.NOTICE_EMPTY or said)
 end
@@ -2500,6 +2536,7 @@ local function RefreshTabs()
 		if catalogView then B.catalogButton:LockHighlight() else B.catalogButton:UnlockHighlight() end
 	end
 	for k, chip in pairs(B.catalogChips) do chip:SetShown(catalogView); chip:SetChecked(k == (ns.char.catalogKind or "d")) end
+	if not catalogView then B.gridPager:Hide() end   -- the cards' pages: FillGrid shows them
 	B.togetherButton:SetShown(lfg)
 	B.togetherButton:SetText(B.lfgTogether and L.BTN_CARDS or L.BTN_TOGETHER)
 	B.memberViewButton:SetShown(B.tab == "members"); B.memberViewButton:SetText(string.format(L.BTN_VIEW_FMT, L["MEMBERS_VIEW_" .. B.membersView:upper()]))
@@ -2626,7 +2663,7 @@ function B.Refresh()
 	if B.searchBox and B.searchBox.Instructions then B.searchBox.Instructions:SetText(L["SEARCH_" .. hk]) end
 	local rows = ROWS   -- one size on every tab: the book does not jump when you change page
 	local runsView = lfg and B.lfgCalendar
-	if lfg and not B.lfgCalendar and not B.lfgTogether and not B.lfgQuests then rows = math.max(ROWS, math.ceil(math.ceil(#list / B.CARD_COLS) * (B.CARD_H + B.CARD_GAP) / ROW_H)) end
+	if lfg and not B.lfgCalendar and not B.lfgTogether and not B.lfgQuests then rows = math.max(ROWS, math.ceil(math.ceil(math.min(#list, B.GRID_PAGE) / B.CARD_COLS) * (B.CARD_H + B.CARD_GAP) / ROW_H)) end
 	B.frame:SetHeight(B.CHROME + (rows + HELP_ROWS) * ROW_H + B.HEAD_ROOM)
 	B.SetTitle(B.TitleString())
 	B.UpdatePills()   -- after the title: they start where its text ends
@@ -2702,7 +2739,7 @@ function B.SetTab(key)
 	ResetBars()
 	B.recipesOf = nil   -- someone's recipes are a look inside the Crafts tab, not a place to come back to
 	key = KnownTab(Resolve(key))
-	if key ~= B.tab then B.Sound("IG_CHARACTER_INFO_TAB") end
+	if key ~= B.tab then B.Sound("IG_CHARACTER_INFO_TAB"); B.gridPage = nil end   -- another tab: the cards open on my level's page again
 	if B.MainOf(key) == "guild" and (key ~= "recruit" or R.IAmOfficer()) then ns.char.guildSub = key end
 	ns.char.boardTab, B.tab, B.search = key, key, ""
 	if B.searchBox then B.searchBox:SetText("") end
@@ -2714,6 +2751,7 @@ function B.ShowTab(key)
 	ResetBars()
 	if not B.frame then Build() end
 	B.tab = KnownTab(Resolve(key))
+	B.gridPage = nil   -- the cards open on my level's page
 	if B.MainOf(B.tab) == "guild" and (B.tab ~= "recruit" or R.IAmOfficer()) then ns.char.guildSub = B.tab end
 	ns.char.boardTab = B.tab
 	B.frame:Show()

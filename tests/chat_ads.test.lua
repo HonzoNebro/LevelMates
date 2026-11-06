@@ -23,6 +23,15 @@ assert(CA.Parse("LF2M Krol'dok tank") == 16 and CA.Parse("lfg kroldok") == 16, "
 assert(CA.Parse("LFM Alcaz Prison") == 17 and CA.Parse("faltan dps para Prisión de Alcaz") == 17, "Alcaz")
 assert(CA.Parse("LFG Blackmaw") == 18 and CA.Parse("busco Faucenegra") == 18, "Blackmaw")
 assert(CA.Parse("LFM Shaper's Terrace") == 19 and CA.Parse("grupo Bancal del Creador") == 19, "Shaper's Terrace")
+-- the classic ones from 30 to 60
+assert(CA.Parse("LFM RFD tank") == 20 and CA.Parse("busco grupo Zahúrda") == 20, "Razorfen Downs")
+assert(CA.Parse("LFM SM cath") == 22 and CA.Parse("lfg armería") == 21, "the Monastery's other wings")
+assert(CA.Parse("LFM Uldaman") == 23 and CA.Parse("LF2M ZF") == 24 and CA.Parse("lfm Zul'Farrak heal") == 24, "Uldaman, Zul'Farrak")
+assert(CA.Parse("LFG mara") == 25 and CA.Parse("LFM ST tank") == 26, "Maraudon, Sunken Temple")
+assert(CA.Parse("LFG BRD") == 27 and CA.Parse("busco grupo profundidades") == 27 and CA.Parse("LFM LBRS") == 28, "Blackrock")
+assert(CA.Parse("busco La Masacre") == 29 and CA.Parse("LFG strat") == 30 and CA.Parse("LFM scholo") == 31, "Dire Maul, Stratholme, Scholomance")
+-- "dm" is the Deadmines; "DM east" is Dire Maul: at the same place, the longer name wins
+assert(CA.Parse("LFM DM east need heal") == 29 and CA.Parse("LFM DM need heal") == 5, "DM east is Dire Maul, DM is the Deadmines")
 assert(CA.Parse("LFG alcaz island quests") == nil and CA.Parse("busco grupo para el bancal") == nil, "the island and the plain word are not the dungeons")
 
 -- hearing the chat

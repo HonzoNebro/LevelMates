@@ -1,4 +1,4 @@
--- Activities.lua: what a group can be for. The dungeons (Dungeons.lua, ids 1-19, unchanged), the raids (101+), PvP
+-- Activities.lua: what a group can be for. The dungeons (Dungeons.lua, ids 1-31, unchanged), the raids (101+), PvP
 -- (201+), and the ones the player names: a free raid (190), world PvP (290) and anything else (300). Each with its
 -- size and slots per role; PvP and "other" have no roles (role A, "any"). Ids travel in messages: never renumber.
 -- Spec 2026-10-13-levelmates-groups-design.

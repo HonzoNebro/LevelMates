@@ -1,5 +1,8 @@
 -- Dungeons.lua: the dungeons the group finder knows, with their card art: the fourteen of the Forever dungeon journal,
--- then Forever's five later new ones (15-19, Blizzard's ranges: news.blizzard.com article 24301455).
+-- then Forever's five later new ones (15-19, Blizzard's ranges: news.blizzard.com article 24301455), then the classic
+-- ones from 30 to 60 (20-31). Their ranges are provisional until checked in the game's journal: the minimum is the
+-- Forever client's (LFGDungeons/ContentTuning, as SenseOS read it), the maximum the classic one; the Monastery's two
+-- other wings keep their classic ranges. Names as the Forever client has them (1.60.1.70790); one Dire Maul there.
 -- To add one, append a row here and add its DUNGEON_* name to both locale files (tests/policy.test.mjs checks that).
 -- Ids 1-6 travel in messages (lfg, dun goals): never renumber them.
 local _, ns = ...
@@ -39,6 +42,18 @@ D.list = {
 	{ id = 17, key = "DUNGEON_ALCAZ_PRISON",        min = 48, max = 53, art = KALIMDOR, coords = NEW },
 	{ id = 18, key = "DUNGEON_BLACKMAW_HOLD",       min = 55, max = 60, art = KALIMDOR, coords = NEW },
 	{ id = 19, key = "DUNGEON_SHAPERS_TERRACE",     min = 58, max = 60, art = KALIMDOR, coords = NEW },
+	{ id = 20, key = "DUNGEON_RAZORFEN_DOWNS",      min = 34, max = 46, art = LS .. "LoadScreenRazorfenDowns", coords = WIDE },
+	{ id = 21, key = "DUNGEON_SM_ARMORY",           min = 32, max = 42, art = LS .. "LoadScreenScarletMonastery2", coords = TALL, instance = SM },
+	{ id = 22, key = "DUNGEON_SM_CATHEDRAL",        min = 35, max = 45, art = LS .. "LoadScreenScarletMonastery2", coords = TALL, instance = SM },
+	{ id = 23, key = "DUNGEON_ULDAMAN",             min = 35, max = 51, art = LS .. "LoadScreenUldaman", coords = WIDE },
+	{ id = 24, key = "DUNGEON_ZULFARRAK",           min = 42, max = 54, art = LS .. "LoadScreenZulFarrak", coords = WIDE },
+	{ id = 25, key = "DUNGEON_MARAUDON",            min = 42, max = 55, art = LS .. "LoadScreenMaraudon", coords = WIDE },
+	{ id = 26, key = "DUNGEON_SUNKEN_TEMPLE",       min = 45, max = 56, art = LS .. "LoadScreenSunkenTemple", coords = WIDE },
+	{ id = 27, key = "DUNGEON_BLACKROCK_DEPTHS",     min = 48, max = 60, art = LS .. "LoadScreenBlackrockDepths", coords = WIDE },
+	{ id = 28, key = "DUNGEON_LOWER_BLACKROCK",      min = 53, max = 60, art = LS .. "LoadScreenBlackrockSpire", coords = WIDE },
+	{ id = 29, key = "DUNGEON_DIRE_MAUL",           min = 54, max = 60, art = LS .. "LoadScreenDireMaul", coords = WIDE },
+	{ id = 30, key = "DUNGEON_STRATHOLME",          min = 55, max = 60, art = LS .. "LoadScreenStrathome", coords = WIDE },   -- sic: the game's file name
+	{ id = 31, key = "DUNGEON_SCHOLOMANCE",         min = 57, max = 60, art = LS .. "LoadScreenScholomance", coords = WIDE },
 }
 
 local byId = {}

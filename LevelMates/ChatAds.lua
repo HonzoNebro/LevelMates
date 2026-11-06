@@ -27,6 +27,18 @@ local ALIASES = {
 	[17] = { "alcaz prison", "prision de alcaz", "prision alcaz" },   -- plain "alcaz" is also the island and its quests
 	[18] = { "blackmaw hold", "blackmaw", "bastion faucenegra", "faucenegra" },
 	[19] = { "shaper s terrace", "shapers terrace", "shapers", "bancal del creador" },   -- plain "bancal" is an ordinary word
+	[20] = { "razorfen downs", "rfd", "zahurda rajacieno", "zahurda" },
+	[21] = { "sm armory", "sm arm", "armory", "sm armeria", "armeria" },
+	[22] = { "sm cathedral", "sm cath", "cathedral", "cath", "sm catedral", "catedral" },
+	[23] = { "uldaman", "ulda" },
+	[24] = { "zul farrak", "zulfarrak", "zf" },   -- the apostrophe is a space by now
+	[25] = { "maraudon", "mara" },
+	[26] = { "temple of atal hakkar", "sunken temple", "st", "templo de atal hakkar", "atal hakkar", "templo sumergido" },
+	[27] = { "blackrock depths", "brd", "profundidades de roca negra", "profundidades" },
+	[28] = { "lower blackrock spire", "lbrs", "cumbre de roca negra inferior", "cumbre inferior" },
+	[29] = { "dire maul", "dm east", "dm west", "dm north", "dm tribute", "dme", "dmw", "dmn", "la masacre", "masacre" },   -- plain "dm" is the Deadmines
+	[30] = { "stratholme", "strat", "strath" },
+	[31] = { "scholomance", "scholo" },
 }
 local GROUP = {}
 for w in ("lfm lfg lf lf1m lf2m lf3m lf4m need needs busco buscamos buscando falta faltan tank tanque heal heals healer healers sanador dps grupo group run runs inv"):gmatch("%S+") do GROUP[w] = true end
@@ -53,11 +65,11 @@ function CA.Parse(text)
 	-- guild recruitment ("LF tanks and heals, dm me for inv") is not a dungeon group
 	for w in s:gmatch("%S+") do if RECRUIT[w] then return nil end end
 	s = s:gsub(" dm me ", " "):gsub(" dm for ", " ")
-	local best, at
+	local best, at, len   -- the first one named; at the same place, the longer name ("dm east" over "dm")
 	for id, list in pairs(ALIASES) do
 		for _, alias in ipairs(list) do
 			local pos = s:find(" " .. alias .. " ", 1, true)
-			if pos and (not at or pos < at or pos == at and id < best) then best, at = id, pos end
+			if pos and (not at or pos < at or pos == at and (#alias > len or #alias == len and id < best)) then best, at, len = id, pos, #alias end
 		end
 	end
 	return best

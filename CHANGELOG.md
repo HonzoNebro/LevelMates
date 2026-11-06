@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- **The guild chat notice can say the message of the day** instead of the guild info, or both (Guild > Recruit > What to say). The message of the day is kept from the moment the game hands it, so a /reload does not lose it.
+- **The classic dungeons from 30 to 60** in the group finder, the cards and the chat ads: Razorfen Downs, the Monastery's Armory and Cathedral, Uldaman, Zul'Farrak, Maraudon, the Temple of Atal'Hakkar, Blackrock Depths, Lower Blackrock Spire, Dire Maul, Stratholme and Scholomance. Their level ranges are provisional (the Forever client's minimum, the classic maximum) until checked in the game's journal.
+- **Dungeon cards in pages** of 15 (arrows at the top right), opening on the page your level fits: the book keeps its size.
+- Chat ads: "DM east" (and west, north, tribute) is Dire Maul; plain "DM" is still the Deadmines.
+- **The guild chat notice can say the message of the day**, the guild info, both, or **your own text** (Guild > Recruit > What to say). The message of the day is kept from the moment the game hands it, so a /reload does not lose it.
 
 ## 0.7.0
 
