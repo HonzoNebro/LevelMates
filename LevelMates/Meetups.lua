@@ -103,6 +103,8 @@ local function capsOf(m) return m.caps or A.Caps(m.d, m.size) end
 -- Who is in which slot: the leader's line-up when there is one (confirmed, small groups), else the leader and the
 -- joins in the order they came while their role has room (not confirmed yet). waiting: joins without a place.
 function M.Slots(m)
+	local planned = ns.RaidPlan and ns.RaidPlan.Layout(m)
+	if planned then return planned end
 	local caps = capsOf(m)
 	local qm = (m.size or 5) <= LINEUP_MAX and S.Get("qm", m.id)
 	local slots, confirmed

@@ -2253,6 +2253,7 @@ function B.OpenGroupMembers(g)
 			for _, name in ipairs(g.slots[role] or {}) do root:CreateButton(name .. " (" .. L["ROLE_" .. role] .. ")", function() ns.MateCard.Show(name) end) end
 		end
 		for _, name in ipairs(g.slots.waiting or {}) do root:CreateButton(name .. " (" .. L.GR_WAITING .. ")", function() ns.MateCard.Show(name) end) end
+		if g.src == "meet" and g.kind == "r" then root:CreateButton(L.RAID_PLAN_MENU, function() ns.RaidPlan.Open(g.id) end) end
 	end)
 end
 
