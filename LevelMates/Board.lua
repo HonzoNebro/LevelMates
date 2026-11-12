@@ -2249,6 +2249,12 @@ end
 function B.OpenGroupMembers(g)
 	MenuUtil.CreateContextMenu(B.frame, function(_, root)
 		root:CreateTitle(g.name .. " · " .. (g.at and ns.Meetups.When(g) or L.WHEN_NOW))
+		if g.mine and g.src == "meet" then
+			local weekly = ns.Meetups.IsWeekly(g.id)
+			root:CreateButton(weekly and L.WEEKLY_OFF or L.WEEKLY_ON, function()
+				ns.Meetups.SetWeekly(g.id, not weekly)
+			end)
+		end
 		for _, role in ipairs({ "T", "H", "D", "A" }) do
 			for _, name in ipairs(g.slots[role] or {}) do root:CreateButton(name .. " (" .. L["ROLE_" .. role] .. ")", function() ns.MateCard.Show(name) end) end
 		end
@@ -2262,6 +2268,8 @@ function B.OpenMeetMenu(m)
 	MenuUtil.CreateContextMenu(B.frame, function(_, root)
 		root:CreateTitle(ns.Dungeons.Name(m.d) .. " · " .. when)
 		if m.by == ns.Me() then
+			local weekly = ns.Meetups.IsWeekly(m.id)
+			root:CreateButton(weekly and L.WEEKLY_OFF or L.WEEKLY_ON, function() ns.Meetups.SetWeekly(m.id, not weekly) end)
 			root:CreateButton(string.format(L.MEET_CANCEL, when), function() ns.Confirm(L.CONFIRM_RUN, function() ns.Meetups.Cancel(m.id) end) end)
 		elseif ns.Meetups.MyRole(m.id) then
 			root:CreateButton(string.format(L.MEET_LEAVE, when), function() ns.Meetups.Leave(m.id) end)

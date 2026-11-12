@@ -208,7 +208,7 @@ end
 
 -- Called from a click (the form or the meetup dialog). spec: { d, at (minutes since 1970), x, c, t, role, note,
 -- discord }. The old (d, at, note, role, discord) still works.
-function M.Create(spec, at, note, role, discord)
+local function create(spec, at, note, role, discord, fixedId)
 	if type(spec) ~= "table" then spec = { d = spec, at = at, note = note, role = role, discord = discord } end
 	local d, a = spec.d, A.Get(spec.d)
 	at, note, role, discord = spec.at, spec.note, spec.role, spec.discord
@@ -226,17 +226,84 @@ function M.Create(spec, at, note, role, discord)
 	local fields = { d = d, at = at, n = clean ~= "" and clean or nil, r = role, dc = discord and (ns.Discord.TagOn() and 2 or 1) or 0, t = t, _exp = (at + M.KEEP) * 60 }
 	if size ~= a.size then fields.x = size end
 	if a.kind == "r" and A.EncodeCaps(caps) ~= A.EncodeCaps(A.Caps(d, size)) then fields.c = A.EncodeCaps(caps) end
-	local id = newId()
+	local id = fixedId or newId()
 	if not S.Put("qd", id, fields) then return false end
 	place(id)
 	if discord then ns.Discord.Run("new", view(S.Get("qd", id))) end
+	return true, id
+end
+function M.Create(...) return create(...) end
+
+-- Weekly plans are private character settings, scoped to the guild. Only ordinary qd/qm
+-- records travel; peers need no new protocol. No signups, hand placements or Discord
+-- announcements carry forward. The creator must be online with sharing on to publish.
+local function plans()
+	local guild = GetGuildInfo("player")
+	if not guild then return nil end
+	ns.char.weeklyRuns = ns.char.weeklyRuns or {}
+	ns.char.weeklyRuns[guild] = ns.char.weeklyRuns[guild] or {}
+	return ns.char.weeklyRuns[guild]
+end
+local function nextWeek(at)
+	local d = date("*t", at * 60)
+	return math.floor(time({ year = d.year, month = d.month, day = d.day + 7,
+		hour = d.hour, min = d.min, sec = 0 }) / 60)
+end
+local function planFor(id)
+	for key, p in pairs(plans() or {}) do if key == id or p.current == id then return p, key end end
+end
+function M.IsWeekly(id) return planFor(id) ~= nil end
+function M.SetWeekly(id, enabled)
+	local ps = plans()
+	if not ps then return false end
+	local p, key = planFor(id)
+	if not enabled then if key then ps[key] = nil; changed(); return true end; return false end
+	local rec = S.Get("qd", id)
+	if not rec or rec.o ~= me() or rec.d.sim or not live(rec) then return false end
+	if p then return true end
+	local n = 0; for _ in pairs(ps) do n = n + 1 end
+	if n >= M.PER_PERSON then ns.Say(L.MEET_FULL); return false end
+	local m = view(rec)
+	ps[id] = { current = id, next = nextWeek(m.at), spec = { d = m.d, x = m.size,
+		c = A.EncodeCaps(m.caps), t = m.t, note = m.n, role = m.role } }
+	changed()
 	return true
 end
+function M.WeeklyTick()
+	if not C.IsReady() then return end
+	for _, p in pairs(plans() or {}) do
+		-- Reconcile before capacity and time checks: the committed record itself may fill the board.
+		local existing = p.pending and S.Get("qd", p.pending)
+		if existing and existing.o == me() and existing.d.at == p.next and existing.d.d == p.spec.d then
+			p.current, p.next, p.pending = p.pending, nextWeek(p.next), nil
+			changed()
+		end
+		-- Missed weeks are skipped, never published as a backlog after a long absence.
+		while p.next < M.Now() + 5 do p.next = nextWeek(p.next); p.pending = nil end
+		if p.next <= M.Now() + 7 * 1440 and count(me()) < M.PER_PERSON and count() < M.MAX then
+			if not p.pending or S.Store("qd")[p.pending] then
+				repeat p.pending = newId() until not S.Store("qd")[p.pending]
+			end -- saved before publishing: a reload retries this occurrence's id
+			local spec = {}; for k, v in pairs(p.spec) do spec[k] = v end
+			spec.at = p.next
+			local ok, id = create(spec, nil, nil, nil, nil, p.pending)
+			if ok then p.current, p.next, p.pending = id, nextWeek(p.next), nil; changed() end
+		end
+	end
+end
+-- Also available when no card remains (for example when guild capacity delays a plan).
+ns.Slash("weekly", function(rest)
+	local ps, n = plans(), 0
+	for key in pairs(ps or {}) do n = n + 1; if strtrim(rest or "") == "stop" then ps[key] = nil end end
+	ns.Say(strtrim(rest or "") == "stop" and L.WEEKLY_STOPPED or L.WEEKLY_STATUS, n)
+	changed()
+end)
 
 function M.Cancel(id)
 	local rec = S.Get("qd", id)
 	if not rec or rec.o ~= me() then return false end
 	local m = view(rec)
+	M.SetWeekly(id, false)
 	if S.Get("qm", id) then S.Remove("qm", id) end
 	if not S.Remove("qd", id) then return false end
 	ns.Discord.Run("cancel", m)
@@ -266,6 +333,7 @@ end
 -- The reminder: 15 minutes before, once, for mine and the ones I joined.
 -- Kept with the character, so a /reload inside the window does not repeat it.
 function M.Tick()
+	M.WeeklyTick()
 	ns.char.meetReminded = ns.char.meetReminded or {}
 	local reminded = ns.char.meetReminded
 	for _, m in ipairs(M.List()) do

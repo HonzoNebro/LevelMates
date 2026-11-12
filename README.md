@@ -33,6 +33,8 @@ The board opens on **Home**, a dashboard: the guild level, who is online, your i
 - **Together**: groups you could make right now from who is online, their levels and roles; one click makes it a run or invites everyone.
 - **Discord**: tick "Announce in the guild's Discord" when you make a run, and its line goes to your guild's Discord channel through the game's own guild link; joining, leaving and cancelling post their own line. The guild master links the channel (Guild > Settings > Guild Control > Discord, with "separate chat"), and each player links their Discord account (Options > Social). Otherwise, "Copy for Discord".
 
+Weekly planning is available from your scheduled group's members menu: **Repeat weekly**. Each date has fresh signups; the creator must be online to publish it. See [weekly planning and limitations](docs/weekly-runs.md).
+
 ### Class
 - **Class tab**: guild talent builds of your class (points per branch and level) with "View build", which puts the build's link in your chat (only you see it) to open it in the game's own viewer; a macro library for each class with spell names in your language, created with a click; and macros your guildmates share with "Share macro". **Ask my class** sends a question to guildmates of your class, answered by whisper.
 
@@ -133,6 +135,8 @@ El tablón se abre en **Inicio**, un panel: el nivel de la hermandad, los conect
 - **Mi rol**: tanque, sanador o daño, compartido con la hermandad (en la pestaña Grupos y en Opciones); sin elegirlo, decide tu clase (con ?).
 - **Juntos**: grupos que podríais hacer ahora con quien está conectado, por nivel y rol; un clic lo convierte en partida o invita a todos.
 - **Discord**: marca "Anunciar en el Discord de la hermandad" al crear la partida y su línea va al canal de Discord de tu hermandad por el enlace del propio juego; apuntarse, salirse y cancelar publican su propia línea. El líder de la hermandad enlaza el canal (Hermandad > Ajustes > Control de hermandad > Discord, con "chat separado") y cada jugador vincula su cuenta de Discord (Opciones > Social). Si no, "Copiar para Discord".
+
+La planificación semanal se activa desde el menú de integrantes de tu partida programada: **Repetir semanalmente**. Cada fecha tiene inscripciones nuevas; el creador debe conectarse para publicarla. Véanse [funcionamiento y limitaciones](docs/weekly-runs.md).
 
 ### Clase
 - **Pestaña Clase**: las builds de talentos de los hermanos de tu clase (puntos por rama y nivel) con "Ver build", que pone el enlace de la build en tu chat (solo lo ves tú) para abrirla en la ventana del propio juego; una biblioteca de macros por clase con los nombres de hechizo en tu idioma, que se crean con un clic; y las macros que comparten tus hermanos con "Compartir macro". **Preguntar a mi clase** manda una pregunta a los hermanos de tu clase, que te responden por susurro.
