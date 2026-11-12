@@ -1,67 +1,128 @@
-# Personal raid preparation
+# Shared raid requirements and personal preparation
 
-`/lm raidready 101` opens a copyable personal preparation snapshot for Molten Core.
-Use 102 for Onyxia, 103 for ZG, 104 for BWL, 105/106 for AQ20/AQ40, 107 for Naxx,
-108/109 for the catalogue's custom raids, or 190 for a free-named raid activity.
-The catalogue is not evidence a raid is open on your realm.
+`/lm raidready config` opens the configuration editor. Choose a raid activity,
+profile source and audience. `/lm raidready 101` opens your personal report for
+Molten Core; 102 Onyxia, 103 ZG, 104 BWL, 105/106 AQ20/AQ40, 107 Naxx, 108/109 the
+catalogue's custom raids and 190 free-named raid. Catalogue presence is not proof
+a raid is open on the realm. No dependency on a scheduled event, Discord roster,
+or the withdrawn weekly/composition PRs is introduced.
 
-Configure your own requirements explicitly; the addon does not prescribe
-consumables or infer access from your gear:
+## Profiles and permissions
+
+| Source | Who edits/publishes | Where it applies |
+| --- | --- | --- |
+| Personal reminders | This character | Private extras for the chosen activity |
+| Guild minimums | Guild master/officers recognized by the existing roster permission model | Chosen activity, for everyone, a class or a selected role |
+| Raid-leader profile | The actual current leader of an in-game raid | Chosen activity, while that author remains your current raid leader |
+
+A class officer publishes the relevant class profile (for example ROGUE); an
+officer may publish common requirements or any class/role profile. There is no
+guess based on rank titles, and no new system of class-specific edit delegation:
+all recognized guild officers retain edit rights. Raid assistants and scheduled
+event creators gain no leader permission merely through those roles.
+
+A non-officer raid leader may publish class/role/general requirements while
+leading an actual raid. Native group APIs identify the leader on the receiving
+client. Another member's stored/claimed leader profile is not applied. Leaving,
+disbanding, changing leader or losing readable roster data stops applying the
+previous leader's profile. Profiles are per author/activity, reusable if that
+author leads again within eight hours, not tied to an invented encounter/session
+ID. Clearing a leader profile publishes an empty list; expiry is eight hours.
+Guild profiles expire after a year unless republished.
+
+The report combines guild ALL + own class + explicitly chosen role, then the
+current leader's matching profiles, then personal reminders. For a repeated item
+it uses the **highest count**, never the sum. Thus a guild minimum of 10, leader
+requirement of 15 and personal reminder of 7 require 15. Private lists and lower
+leader counts cannot remove officer minimums. The report shows sources, authors,
+update times and per-item origins. Roles are never inferred from class: without
+a role selected in the existing Options, role-specific requirements are unknown.
+Unreadable class data is explicitly unknown as well.
+
+## Editor and commands
+
+The editor has raid, source and audience menus, an item/count input, author/time,
+permission feedback, Save profile and View my report. Members can inspect guild
+profiles; publishing is disabled unless authorized and permissions are checked
+again when saving. Switching the selected profile loads its existing contents.
+
+Enter `itemID:count,itemID:count`, up to 20 distinct items per profile, IDs
+1–999999, counts 1–999. Empty or `clear` clears that profile only. Invalid input
+rejects the whole replacement. Personal reminders from the first version remain
+personal; shared profiles are never copied into or used to overwrite them.
+
+Equivalent commands (item numbers are configuration examples, not class advice):
 
 ```
+/lm raidready config 101
+/lm raidready guild 101 ALL 13446:10
+/lm raidready guild 101 ROGUE 13446:15,13444:5
+/lm raidready guild 101 D 13446:12
+/lm raidready raid 101 ROGUE 13446:20
+/lm raidready items 101 13444:8
 /lm raidready access 101 yes
-/lm raidready items 101 13446:10,13444:5
 /lm raidready 101
 ```
 
-The example numbers are item IDs/counts, not a recommendation for a particular
-raid or class. Replace them with your guild's requirements. `items 101 clear`
-clears them. At most 20 distinct items, IDs 1–999999, required counts 1–999.
-Malformed or duplicate entries reject the entire replacement. Settings belong to
-the character, guild key and raid activity; they persist with SavedVariables.
+Audience tokens: ALL, WARRIOR, PALADIN, HUNTER, ROGUE, PRIEST, SHAMAN, MAGE,
+WARLOCK, DRUID, or T/H/D. `items` and `access` always remain private.
 
-Access is a **self-report** (`yes`, `no`, `unknown`), dated and expired after seven
-days. It is not a quest/key/attunement API verdict. Item counts use carried
-inventory with bank/reagent/account-bank/charge-counting flags disabled.
-Missing, protected, throwing or invalid API values display **Unknown**, including
-when no item requirements have been configured. No inventory, buff, aura or
-combat data is read from other players.
+## Distribution and trust
 
-Lockouts list all raid entries that the client reports as locked or extended,
-with the API's remaining seconds. They are labelled **cached**: no automatic
-mapping between activity IDs and instance names, no request/response freshness
-claim, and no "ready" verdict from an empty cache. Open the game's Raid Info,
-refresh it and review the target raid and realm rules manually. The snapshot is
-not refreshed after it opens; run the command again when needed. API calls are
-skipped in combat or if combat state cannot be read safely.
+Publishing profiles sends guild addon records, never public chat/Discord messages.
+`rpg` contains mutable officer profiles keyed by activity/audience; `rpl` contains
+leader profiles keyed by author/activity/audience. Existing record persistence,
+chunking, pending sends and guild scoping are reused. Long 20-item profiles use
+chunked transport. Saving is not proof of delivery; instance/realm restrictions
+still apply and older clients do not understand these new profiles.
 
-The report is local, uses the existing copy dialog and sends no addon/chat
-messages. Share the text only if you choose. Existing `/lm raidprobe` remains the
-separate explicit test for the realm's addon-message transport restrictions.
-This first readiness delivery does not implement guild-wide checks or hardcoded
-attunement rules for WoW Forever.
+To prevent a member from claiming another author's policy through catch-up,
+profile records **and tombstones** are accepted only from their author or a trusted
+officer relay. Only officers claim general profile catch-up responses; a current
+non-officer raid leader directly serves their own profiles on hello, throttled
+per requester. New clients need an online officer for guild-policy catch-up;
+ordinary members cannot relay cached policies as authoritative. Previously
+received profiles remain saved locally. A missing/partial set is not a readiness
+certificate: the report identifies the profiles it actually has, and explicitly
+says when no shared profile is present.
 
-## API basis and verification limits
+Simultaneous same-revision officer edits resolve by deterministic author order;
+the shared-profile digest includes the author so a missed conflict can reconcile.
+Equal-revision deletion wins over a live record. These sync options are opt-in
+for the requirement types; existing record types keep their previous behavior.
+This trusts the guild's officers, not cryptographic signatures.
 
-The API contracts were inspected in the client UI source mirror:
+## API and privacy limits
+
+The report is personal: inventory counts, access declarations and lockout lists
+are not transmitted. Only published item requirements are shared. Access remains
+a dated self-report, expired after seven days; no attunement/key/quest verdict.
+Counts use carried inventory with bank/reagent/account-bank/charge-counting flags
+disabled. Missing, protected, invalid or throwing APIs show Unknown. Combat or an
+unreadable combat state blocks snapshot reads. There is no raid-wide inventory,
+buff/aura inspection or automatic eligibility verdict.
+
+Lockouts are cached client data; review/refresh the game's Raid Info manually.
+There is no automatic activity-to-instance matching and an empty cache proves
+nothing about eligibility. Run the command again to refresh an open snapshot.
+`/lm raidprobe` remains the separate explicit transport diagnostic.
+
+API basis: the client source mirror's
 [raid info consumer](https://github.com/Gethe/wow-ui-source/blob/live/Interface/AddOns/Blizzard_RaidFrame/Mainline/RaidFrame.lua)
-and [generated item API documentation](https://github.com/Gethe/wow-ui-source/blob/live/Interface/AddOns/Blizzard_APIDocumentationGenerated/ItemDocumentation.lua).
-These describe the general client API; Forever availability is checked at runtime,
-and unknowns remain unknown. The addon prefers `C_Item.GetItemCount`, with legacy
-`GetItemCount` as a fallback when the modern function is absent.
+and [generated item documentation](https://github.com/Gethe/wow-ui-source/blob/live/Interface/AddOns/Blizzard_APIDocumentationGenerated/ItemDocumentation.lua).
+Native raid leadership reads are guarded; unknown results do not grant rights.
 
-Run `npm ci --prefix tools --ignore-scripts` and `npm test`. The focused
-`tests/raid_readiness.test.lua` covers invalid configuration, atomic replacement,
-missing/protected/throwing APIs, zero inventory, cached/extended/empty lockouts,
-combat, attestation expiry, guild scoping, slash commands and the copy report.
+## Validation
 
-**No in-game tests have been performed.** Manual WoW Forever checks:
+Run `npm test`. The original readiness test covers API fallbacks, protected/throwing
+values, zero counts, cached/extended lockouts, combat, personal expiry and guild
+scoping. New unit tests cover permissions, class/role selection, max-count merge,
+personal preservation, leader changes and the editor. The multi-client test covers
+distribution, late arrival, a non-officer leader, long profiles, concurrent edits,
+and rejection of forged live/catch-up policy updates and tombstones.
 
-1. Configure one carried item and one missing item, open the report and compare
-   counts with bags (including bank-only items as a control).
-2. Compare cached rows with the game's Raid Info, including an extended lockout.
-3. Try missing client APIs or restricted values where the realm exposes them;
-   verify Unknown rather than a pass. Repeat outside and during combat.
-4. Check English/Spanish copy-dialog layout and multiline instructions.
-5. Set access, reload, and confirm it is labelled self-reported. Confirm other
-   characters/guilds do not inherit these requirements.
+**No in-game tests performed.** With updated clients, test officer ROGUE/general
+profiles on a rogue and another class; test a non-officer leader, leadership
+transfer, profile clearing, selected roles, normal reload, delayed transport and
+late login. Verify editor/report layout in English/Spanish. Keep real guild
+standards out of test edits unless intentionally changing them.

@@ -1,4 +1,4 @@
--- Read-only personal raid preparation. No combat data, inspections, messages or automatic verdict.
+-- Personal preparation report with shared requirements and private reminders; no inventory sharing or automatic verdict.
 local _, ns = ...
 local RR = {}
 ns.RaidReadiness = RR
@@ -30,22 +30,12 @@ end
 -- Validate a complete replacement first. Never partially change a profile on invalid input.
 function RR.SetItems(id, text)
 	id = raid(id)
-	if not id or type(text) ~= "string" then return false end
-	text = strtrim(text)
-	local items, seen = {}, {}
-	if strtrim(text) ~= "" and strtrim(text) ~= "clear" then
-		if text:sub(1, 1) == "," or text:sub(-1) == "," or text:find(",%s*,") then return false end
-		for piece in text:gmatch("[^,]+") do
-			local item, count = piece:match("^%s*(%d+):(%d+)%s*$")
-			item, count = tonumber(item), tonumber(count)
-			if not item or item < 1 or item > 999999 or not count or count < 1 or count > 999 or seen[item] or #items >= RR.MAX_ITEMS then return false end
-			seen[item] = true; items[#items + 1] = { id = item, required = count }
-		end
-		if #items == 0 then return false end
-	end
+	local items = ns.RaidRequirements.Parse(text)
+	if not id or not items then return false end
 	profile(id).items = items
 	return true
 end
+function RR.PersonalItems(id) id = raid(id); return id and profile(id).items or {} end
 function RR.Lockouts()
 	local out = { status = "unknown", rows = {} }
 	if type(GetNumSavedInstances) ~= "function" or type(GetSavedInstanceInfo) ~= "function" then return out end
@@ -72,13 +62,26 @@ function RR.Snapshot(id)
 	if not okCombat or ns.Plain(combat) ~= false then out.combat = true; return out end
 	if p.accessAt and out.at >= p.accessAt and out.at - p.accessAt <= RR.ACCESS_LIFE then out.access, out.accessAt = p.access, p.accessAt end
 	out.lockouts = RR.Lockouts()
+	local sources, class, role, leader = ns.RaidRequirements.Resolve(id)
+	out.sources, out.class, out.role, out.leader = sources, class, role, leader
+	local items, byId = {}, {}
+	local function merge(list, origin)
+		for _, item in ipairs(list or {}) do
+			local row = byId[item.id]
+			if not row then row = { id = item.id, required = 0, origins = {} }; byId[item.id] = row; items[#items + 1] = row end
+			row.required = math.max(row.required, item.required)
+			row.origins[#row.origins + 1] = origin
+		end
+	end
+	for _, source in ipairs(sources) do merge(source.items, source) end
+	merge(p.items, { kind = "personal" })
 	local get = C_Item and C_Item.GetItemCount or GetItemCount
-	for _, item in ipairs(p.items or {}) do
+	for _, item in ipairs(items) do
 		local ok, count = false, nil
 		if type(get) == "function" then ok, count = pcall(get, item.id, false, false, false, false) end
 		count = ok and number(count) or nil
 		out.items[#out.items + 1] = { id = item.id, required = item.required, count = count,
-			status = count == nil and "unknown" or count >= item.required and "enough" or "missing" }
+			status = count == nil and "unknown" or count >= item.required and "enough" or "missing", origins = item.origins }
 	end
 	return out
 end
@@ -90,14 +93,33 @@ function RR.Text(id)
 	lines[#lines + 1] = L.READY_ACCESS .. ": " .. (L["READY_" .. s.access:upper()] or L.READY_UNKNOWN) .. (s.accessAt and (" · " .. date("%d/%m %H:%M", s.accessAt)) or "")
 	lines[#lines + 1] = L.READY_LOCKOUTS .. ": " .. (s.lockouts.status == "cached" and L.READY_CACHED or L.READY_UNKNOWN)
 	for _, r in ipairs(s.lockouts.rows) do lines[#lines + 1] = string.format("  %s · %ds%s", ns.Activities.CleanName(r.name), r.reset, r.extended and (" · " .. L.READY_EXTENDED) or "") end
+	lines[#lines + 1] = L.READY_SHARED_HEADER
+	if #s.sources == 0 then lines[#lines + 1] = L.READY_NO_SHARED end
+	for _, source in ipairs(s.sources) do
+		lines[#lines + 1] = string.format("  %s · %s · %s · %s", L["READY_SOURCE_" .. source.kind:upper()], ns.RaidRequirements.ScopeLabel(source.scope), source.by, date("%d/%m %H:%M", source.at))
+	end
+	if not s.class then lines[#lines + 1] = L.READY_CLASS_UNKNOWN end
+	if not s.role then lines[#lines + 1] = L.READY_ROLE_UNSET end
 	lines[#lines + 1] = L.READY_ITEMS
 	if #s.items == 0 then lines[#lines + 1] = L.READY_UNCONFIGURED end
-	for _, item in ipairs(s.items) do lines[#lines + 1] = string.format("  #%d: %s/%d · %s", item.id, item.count == nil and "?" or tostring(item.count), item.required, L["READY_" .. item.status:upper()]) end
+	for _, item in ipairs(s.items) do
+		local origins = {}
+		for _, origin in ipairs(item.origins) do origins[#origins + 1] = L["READY_SOURCE_" .. origin.kind:upper()] .. (origin.scope and ("/" .. ns.RaidRequirements.ScopeLabel(origin.scope)) or "") end
+		lines[#lines + 1] = string.format("  #%d: %s/%d · %s · %s", item.id, item.count == nil and "?" or tostring(item.count), item.required, L["READY_" .. item.status:upper()], table.concat(origins, ", "))
+	end
 	lines[#lines + 1] = L.READY_LIMITS
 	lines[#lines + 1] = L.READY_HELP
 	return table.concat(lines, "\n")
 end
 ns.Slash("raidready", function(rest)
+	local config = strtrim(rest or ""):match("^config%s*(%d*)$")
+	if config then RR.OpenConfig(tonumber(config)); return end
+	local kind, raidId, scope, text = strtrim(rest or ""):match("^(%a+)%s+(%d+)%s+(%u+)%s+(.+)$")
+	if kind == "guild" or kind == "raid" then
+		local ok, why = ns.RaidRequirements.Set(kind, raidId, scope, text)
+		ns.Say(ok and L.READY_SHARED_SAVED or why == "permission" and L.READY_NO_PERMISSION or L.READY_HELP)
+		return
+	end
 	local action, id, value = strtrim(rest or ""):match("^(%a+)%s+(%d+)%s+(.+)$")
 	if action then
 		local ok = action == "access" and RR.SetAccess(id, value) or action == "items" and RR.SetItems(id, value)
