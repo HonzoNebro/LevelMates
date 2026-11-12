@@ -59,6 +59,8 @@ The board opens on **Home**, a dashboard: the guild level, who is online, your i
 ### Officers
 - **Recruit tab** (officers and guild master only): three shared templates with placeholders (`{guild}`, `{online}`, `{level}`), posted to channel 2 (Trade) or 1 (General) with a click, a 10-minute wait shared by all officers, and an optional reminder that offers a one-click Post. **Guild chat notice**: an officer can have the guild's Information text, the message of the day, both or their own text said in guild chat by itself every 30 to 240 minutes (off by default, one officer sends it, never in combat or instances). **Inactive** lists members away for 14 or 30 days, with rank, last login and join date (noted from the day LevelMates first sees them).
 
+Personal raid preparation: `/lm raidready <raid ID>` opens a local report of self-reported access, cached lockouts and configured carried consumables. [Setup, API limits and verification](docs/raid-readiness.md).
+
 ## Privacy
 
 Everything goes only to your own guild, as addon messages. In `/lm options` you can turn each part off.
@@ -159,6 +161,8 @@ El tablón se abre en **Inicio**, un panel: el nivel de la hermandad, los conect
 
 ### Oficiales
 - **Pestaña Reclutar** (solo oficiales y maestro): tres plantillas compartidas con comodines (`{hermandad}`, `{conectados}`, `{nivel}`), publicadas en el canal 2 (Comercio) o 1 (General) con un clic, una espera de 10 minutos compartida entre oficiales y un recordatorio opcional que ofrece Publicar con un clic. **Aviso en el chat de la hermandad**: un oficial puede hacer que la información de la hermandad, el mensaje del día, los dos o un texto propio salgan solos en su chat cada 30 a 240 minutos (apagado por defecto, la envía un solo oficial, nunca en combate ni en instancias). **Inactivos** lista a quien lleva 14 o 30 días sin entrar, con rango, última conexión y fecha de ingreso (apuntada desde el día en que LevelMates lo ve por primera vez).
+
+Preparación personal de banda: `/lm raidready <ID de banda>` abre un informe local de acceso declarado, bloqueos en caché y consumibles configurados que llevas encima. [Configuración, límites de API y comprobaciones](docs/raid-readiness.md).
 
 ## Privacidad
 
